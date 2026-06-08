@@ -1,0 +1,24 @@
+.footer {
+  background: #0a3d2b;
+  color: rgba(255,255,255,0.7);
+  padding: 20px 32px;
+  text-align: center;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.footer-name {
+  color: white;
+  font-weight: 600;
+}
+
+.footer-sep {
+  opacity: 0.3;
+}

@@ -1,0 +1,61 @@
+<main class="home">
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">Angular Internship Project</div>
+    <h1 class="hero-title">Welcome, {{ studentName }}! 👋</h1>
+    <p class="hero-subtitle">
+      This project was built using Angular as part of my internship training.
+      It demonstrates components, data binding, and routing.
+    </p>
+    <div class="hero-meta">
+      <span>📅 Year: {{ year }}</span>
+      <span>🎓 {{ collegeName }}</span>
+    </div>
+  </section>
+
+  <!-- Topics Learned -->
+  <section class="topics">
+    <h2 class="section-title">Topics Learned</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <h3>Angular Components</h3>
+        <p>Reusable building blocks of an Angular app — each with its own HTML, CSS, and TypeScript.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔗</div>
+        <h3>Data Binding</h3>
+        <p>Connects the component class with the template using interpolation, property, event, and two-way binding.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗺️</div>
+        <h3>Angular Routing</h3>
+        <p>Navigate between views without page reload — the core of Single Page Applications (SPA).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Components Built -->
+  <section class="built">
+    <h2 class="section-title">Components Built Today</h2>
+    <div class="component-list">
+      <div class="comp-item">
+        <span class="comp-dot"></span>
+        <span class="comp-name">HeaderComponent</span>
+        <span class="comp-desc">— Navigation bar at the top</span>
+      </div>
+      <div class="comp-item">
+        <span class="comp-dot"></span>
+        <span class="comp-name">HomeComponent</span>
+        <span class="comp-desc">— Main content area (this page)</span>
+      </div>
+      <div class="comp-item">
+        <span class="comp-dot"></span>
+        <span class="comp-name">FooterComponent</span>
+        <span class="comp-desc">— Footer at the bottom</span>
+      </div>
+    </div>
+  </section>
+
+</main>
