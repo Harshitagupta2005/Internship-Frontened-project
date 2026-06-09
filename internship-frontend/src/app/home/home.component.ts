@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-  studentName: string = 'Harshita';
-  collegeName: string = 'My College';
-  year: number = 2025;
+  studentName: string = 'Harshita Gupta';
+  collegeName: string = 'IMS Engineering College';
+  year: number = 2026;
 }

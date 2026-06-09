@@ -1,0 +1,23 @@
+<div class="dashboard">
+  <div class="page-header">
+    <h1>📊 Dashboard</h1>
+    <p>Overview of your internship progress</p>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of stats" [style.borderTopColor]="stat.color">
+      <div class="stat-icon">{{ stat.icon }}</div>
+      <div class="stat-value">{{ stat.value }}</div>
+      <div class="stat-label">{{ stat.label }}</div>
+    </div>
+  </div>
+  <div class="section">
+    <h2>Recent Activity</h2>
+    <div class="activity-list">
+      <div class="activity-item" *ngFor="let act of activities">
+        <span class="act-icon">{{ act.icon }}</span>
+        <span class="act-text">{{ act.text }}</span>
+        <span class="act-time">{{ act.time }}</span>
+      </div>
+    </div>
+  </div>
+</div>

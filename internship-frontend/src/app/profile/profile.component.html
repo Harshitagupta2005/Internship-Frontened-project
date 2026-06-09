@@ -1,0 +1,38 @@
+<div class="profile-page">
+  <div class="page-header">
+    <h1>👤 Profile</h1>
+    <p>Your internship details</p>
+  </div>
+  <div class="profile-grid">
+    <div class="profile-card">
+      <div class="avatar">{{ profile.name[0] }}</div>
+      <h2>{{ profile.name }}</h2>
+      <span class="role-badge">{{ profile.role }}</span>
+      <p class="bio">{{ profile.bio }}</p>
+      <div class="info-list">
+        <div class="info-item"><span>🎓</span> {{ profile.college }}</div>
+        <div class="info-item"><span>📧</span> {{ profile.email }}</div>
+        <div class="info-item"><span>📍</span> {{ profile.location }}</div>
+      </div>
+    </div>
+    <div class="skills-card">
+      <h3>Skills Learned</h3>
+      <div class="skills-grid">
+        <span class="skill-tag" *ngFor="let skill of skills">{{ skill }}</span>
+      </div>
+      <h3 style="margin-top:28px">Internship Progress</h3>
+      <div class="progress-item">
+        <div class="progress-label"><span>Angular Basics</span><span>90%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Routing</span><span>85%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Responsive Design</span><span>80%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
