@@ -10,6 +10,7 @@ import { HomeComponent } from './home/home.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ContactComponent } from './contact/contact.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -21,10 +22,20 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    AppComponent, HeaderComponent, FooterComponent,
-    HomeComponent, DashboardComponent, ProfileComponent, ContactComponent
+    AppComponent,
+    HeaderComponent,
+    FooterComponent,
+    HomeComponent,
+    DashboardComponent,
+    ProfileComponent,
+    ContactComponent,
+    SidebarComponent
   ],
-  imports: [ BrowserModule, FormsModule, RouterModule.forRoot(routes) ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    RouterModule.forRoot(routes)
+  ],
   providers: [],
   bootstrap: [AppComponent]
 })
