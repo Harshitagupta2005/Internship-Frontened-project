@@ -1,0 +1,103 @@
+.page-layout { display:flex; min-height:calc(100vh - 64px - 56px); }
+.ticket-page { padding:32px; flex:1; overflow-x:hidden; margin-left:240px; }
+
+.page-header { margin-bottom:28px; }
+.page-header h1 { font-size:28px; font-weight:700; color:#0a3d2b; margin-bottom:4px; }
+.page-header p { color:#4a7a62; font-size:15px; }
+
+/* Search Bar */
+.search-bar {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:white;
+  border:1.5px solid #d1f0e4;
+  border-radius:12px;
+  padding:12px 16px;
+  margin-bottom:24px;
+  max-width:600px;
+}
+.search-icon { font-size:18px; }
+.search-input {
+  flex:1;
+  border:none;
+  outline:none;
+  font-size:15px;
+  font-family:inherit;
+  color:#333;
+  background:transparent;
+}
+.search-input::placeholder { color:#aaa; }
+.search-count {
+  font-size:13px;
+  color:#888;
+  white-space:nowrap;
+  font-weight:500;
+}
+
+/* Table */
+.table-wrapper {
+  background:white;
+  border-radius:14px;
+  border:1px solid #e0f0e8;
+  overflow:auto;
+  box-shadow:0 2px 12px rgba(0,0,0,0.05);
+}
+.ticket-table {
+  width:100%;
+  border-collapse:collapse;
+  min-width:600px;
+}
+.ticket-table thead tr {
+  background:#0a3d2b;
+  color:white;
+}
+.ticket-table th {
+  padding:14px 18px;
+  text-align:left;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:0.3px;
+}
+.ticket-table tbody tr {
+  border-bottom:1px solid #f0f0f0;
+  transition:background 0.15s;
+}
+.ticket-table tbody tr:hover { background:#f8fffe; }
+.ticket-table td {
+  padding:14px 18px;
+  font-size:14px;
+  color:#333;
+}
+.ticket-id { font-family:'Courier New',monospace; font-weight:600; color:#1D9E75; }
+.ticket-title { font-weight:500; color:#0a3d2b; }
+.assigned { color:#555; }
+
+/* Badges */
+.badge {
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:100px;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:0.3px;
+}
+
+/* Status Badges */
+.badge-open { background:#fef3cd; color:#856404; border:1px solid #fde68a; }
+.badge-progress { background:#cfe2ff; color:#0a58ca; border:1px solid #b6d4fe; }
+.badge-closed { background:#d1f0e4; color:#0f6e56; border:1px solid #9FE1CB; }
+
+/* Priority Badges */
+.badge-high { background:#ffe0e0; color:#9b1c1c; border:1px solid #fca5a5; }
+.badge-medium { background:#faeeda; color:#633806; border:1px solid #fed7aa; }
+.badge-low { background:#e0f2fe; color:#075985; border:1px solid #bae6fd; }
+
+/* No results */
+.no-results { text-align:center; padding:32px; color:#aaa; font-size:15px; }
+
+/* Mobile */
+@media(max-width:768px) {
+  .ticket-page { padding:16px; margin-left:0; }
+  .search-bar { max-width:100%; }
+}

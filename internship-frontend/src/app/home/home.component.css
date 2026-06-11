@@ -147,3 +147,33 @@
   font-size: 14px;
   color: #4a7a62;
 }
+@media (max-width: 768px) {
+  .hero {
+    padding: 36px 20px 28px;
+  }
+  .hero-title {
+    font-size: 26px;
+  }
+  .hero-subtitle {
+    font-size: 14px;
+  }
+  .hero-meta {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  .topics {
+    padding: 36px 16px;
+  }
+  .built {
+    padding: 32px 16px;
+  }
+  .section-title {
+    font-size: 20px;
+  }
+  .comp-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}

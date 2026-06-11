@@ -11,31 +11,24 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ContactComponent } from './contact/contact.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
+import { TicketListComponent } from './ticket-list/ticket-list.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'profile', component: ProfileComponent },
   { path: 'contact', component: ContactComponent },
+  { path: 'tickets', component: TicketListComponent },
   { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
   declarations: [
-    AppComponent,
-    HeaderComponent,
-    FooterComponent,
-    HomeComponent,
-    DashboardComponent,
-    ProfileComponent,
-    ContactComponent,
-    SidebarComponent
+    AppComponent, HeaderComponent, FooterComponent,
+    HomeComponent, DashboardComponent, ProfileComponent,
+    ContactComponent, SidebarComponent, TicketListComponent
   ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    RouterModule.forRoot(routes)
-  ],
+  imports: [BrowserModule, FormsModule, RouterModule.forRoot(routes)],
   providers: [],
   bootstrap: [AppComponent]
 })
