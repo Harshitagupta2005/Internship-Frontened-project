@@ -110,39 +110,11 @@
 /* Mobile mein sidebar-toggle button hide karo - header hamburger already hai */
 @media (max-width: 768px) {
 
-  .sidebar-toggle {
-    display: block;
-    position: fixed;
-    top: 72px;
-    left: 16px;
-    z-index: 200;
-    background: #1D9E75;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-
   .sidebar {
-    position: fixed;
-    top: 64px;
-    left: -240px;
-    width: 240px;
-    height: calc(100vh - 64px);
-    transition: left 0.3s ease;
-    z-index: 180;
-  }
-
-  .sidebar.open {
-    left: 0;
-  }
-
-  .overlay {
     display: none;
   }
 
-  .overlay.show {
-    display: block;
+  .overlay {
+    display: none !important;
   }
 }
