@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule, Routes } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
@@ -12,6 +12,8 @@ import { ProfileComponent } from './profile/profile.component';
 import { ContactComponent } from './contact/contact.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { TicketListComponent } from './ticket-list/ticket-list.component';
+import { AddTicketComponent } from './add-ticket/add-ticket.component';
+import { EditTicketComponent } from './edit-ticket/edit-ticket.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -19,6 +21,8 @@ const routes: Routes = [
   { path: 'profile', component: ProfileComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'tickets', component: TicketListComponent },
+  { path: 'tickets/add', component: AddTicketComponent },
+  { path: 'tickets/edit/:id', component: EditTicketComponent },
   { path: '**', redirectTo: '' }
 ];
 
@@ -26,9 +30,10 @@ const routes: Routes = [
   declarations: [
     AppComponent, HeaderComponent, FooterComponent,
     HomeComponent, DashboardComponent, ProfileComponent,
-    ContactComponent, SidebarComponent, TicketListComponent
+    ContactComponent, SidebarComponent, TicketListComponent,
+    AddTicketComponent, EditTicketComponent
   ],
-  imports: [BrowserModule, FormsModule, RouterModule.forRoot(routes)],
+  imports: [BrowserModule, FormsModule, ReactiveFormsModule, RouterModule.forRoot(routes)],
   providers: [],
   bootstrap: [AppComponent]
 })

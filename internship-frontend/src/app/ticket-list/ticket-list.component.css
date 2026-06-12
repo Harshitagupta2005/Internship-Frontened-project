@@ -95,6 +95,11 @@
 
 /* No results */
 .no-results { text-align:center; padding:32px; color:#aaa; font-size:15px; }
+.page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
+.btn-add { background:#1D9E75; color:white; padding:10px 20px; border-radius:10px; text-decoration:none; font-size:14px; font-weight:600; transition:background 0.2s; white-space:nowrap; }
+.btn-add:hover { background:#17865f; }
+.btn-edit { background:#e8f8f2; color:#1D9E75; padding:6px 14px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:600; border:1px solid #c3e8d8; transition:background 0.2s; }
+.btn-edit:hover { background:#d1f0e4; }
 
 /* Mobile */
 @media(max-width:768px) {
