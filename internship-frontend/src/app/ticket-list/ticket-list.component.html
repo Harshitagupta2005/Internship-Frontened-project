@@ -1,6 +1,7 @@
 <div class="page-layout">
   <app-sidebar></app-sidebar>
   <div class="ticket-page">
+
     <div class="page-header">
       <div>
         <h1>🎫 Ticket List</h1>
@@ -9,52 +10,70 @@
       <a routerLink="/tickets/add" class="btn-add">➕ Add Ticket</a>
     </div>
 
-    <div class="search-bar">
-      <span class="search-icon">🔍</span>
-      <input type="text" [(ngModel)]="searchText" placeholder="Search tickets by title..." class="search-input" />
-      <span class="search-count">{{ filteredTickets.length }} tickets found</span>
+    <!-- Loading Indicator -->
+    <div class="loading-box" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading tickets, please wait...</p>
     </div>
 
-    <div class="table-wrapper">
-      <table class="ticket-table">
-        <thead>
-          <tr>
-            <th>Ticket ID</th>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Assigned To</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let ticket of filteredTickets">
-            <td class="ticket-id">{{ ticket.id }}</td>
-            <td class="ticket-title">{{ ticket.title }}</td>
-            <td>
-              <span class="badge" [ngClass]="{
-                'badge-open': ticket.status === 'Open',
-                'badge-progress': ticket.status === 'In Progress',
-                'badge-closed': ticket.status === 'Closed'
-              }">{{ ticket.status }}</span>
-            </td>
-            <td>
-              <span class="badge" [ngClass]="{
-                'badge-high': ticket.priority === 'High',
-                'badge-medium': ticket.priority === 'Medium',
-                'badge-low': ticket.priority === 'Low'
-              }">{{ ticket.priority }}</span>
-            </td>
-            <td class="assigned">{{ ticket.assignedTo }}</td>
-            <td>
-              <a [routerLink]="['/tickets/edit', ticket.id]" class="btn-edit">✏️ Edit</a>
-            </td>
-          </tr>
-          <tr *ngIf="filteredTickets.length === 0">
-            <td colspan="6" class="no-results">No tickets found for "{{ searchText }}"</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Error Message -->
+    <div class="error-box" *ngIf="errorMessage && !isLoading">
+      <span>⚠️ {{ errorMessage }}</span>
+      <button (click)="loadTickets()" class="retry-btn">🔄 Retry</button>
     </div>
+
+    <!-- Content -->
+    <div *ngIf="!isLoading && !errorMessage">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" [(ngModel)]="searchText"
+          placeholder="Search tickets by title..."
+          class="search-input" />
+        <span class="search-count">{{ filteredTickets.length }} tickets found</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="ticket-table">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Assigned To</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ticket of filteredTickets">
+              <td class="ticket-id">{{ ticket.id }}</td>
+              <td class="ticket-title">{{ ticket.title }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-open': ticket.status === 'Open',
+                  'badge-progress': ticket.status === 'In Progress',
+                  'badge-closed': ticket.status === 'Closed'
+                }">{{ ticket.status }}</span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-high': ticket.priority === 'High',
+                  'badge-medium': ticket.priority === 'Medium',
+                  'badge-low': ticket.priority === 'Low'
+                }">{{ ticket.priority }}</span>
+              </td>
+              <td class="assigned">{{ ticket.assignedTo }}</td>
+              <td>
+                <a [routerLink]="['/tickets/edit', ticket.id]" class="btn-edit">✏️ Edit</a>
+              </td>
+            </tr>
+            <tr *ngIf="filteredTickets.length === 0">
+              <td colspan="6" class="no-results">No tickets found for "{{ searchText }}"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </div>
