@@ -1,0 +1,56 @@
+<div class="page-layout">
+  <app-sidebar></app-sidebar>
+  <div class="details-page">
+
+    <button class="back-btn" (click)="goBack()">← Back to Tickets</button>
+
+    <div class="loading-box" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading ticket details...</p>
+    </div>
+
+    <div class="error-box" *ngIf="errorMessage && !isLoading">
+      <span>⚠️ {{ errorMessage }}</span>
+    </div>
+
+    <div class="details-card" *ngIf="ticket">
+      <div class="details-header">
+        <div>
+          <span class="ticket-id-tag">{{ ticket?.id }}</span>
+          <h1>{{ ticket?.title }}</h1>
+        </div>
+        <div class="badges">
+          <span class="badge" [ngClass]="{
+            'badge-open': ticket?.status === 'Open',
+            'badge-progress': ticket?.status === 'In Progress',
+            'badge-closed': ticket?.status === 'Closed'
+          }">{{ ticket?.status }}</span>
+          <span class="badge" [ngClass]="{
+            'badge-high': ticket?.priority === 'High',
+            'badge-medium': ticket?.priority === 'Medium',
+            'badge-low': ticket?.priority === 'Low'
+          }">{{ ticket?.priority }}</span>
+        </div>
+      </div>
+
+      <div class="details-section">
+        <h3>Description</h3>
+        <p>{{ ticket?.description }}</p>
+      </div>
+
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="detail-label">👤 Assigned To</span>
+          <span class="detail-value">{{ ticket?.assignedTo }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">📅 Created Date</span>
+          <span class="detail-value">{{ ticket?.createdDate }}</span>
+        </div>
+      </div>
+
+      <a *ngIf="ticket" [routerLink]="['/tickets/edit', ticket.id]" class="edit-link-btn">✏️ Edit This Ticket</a>
+    </div>
+
+  </div>
+</div>

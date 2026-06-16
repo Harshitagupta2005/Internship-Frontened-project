@@ -6,6 +6,11 @@
       <h1>✏️ Edit Ticket</h1>
       <p>Update ticket details — {{ ticketId }}</p>
     </div>
+    <app-notification
+  [type]="notifType"
+  [message]="notifMessage"
+  [show]="showNotification">
+</app-notification>
 
     <div class="form-card">
       <form [formGroup]="ticketForm" (ngSubmit)="onSubmit()">

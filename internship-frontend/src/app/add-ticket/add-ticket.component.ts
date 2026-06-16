@@ -11,6 +11,10 @@ export class AddTicketComponent {
   ticketForm: FormGroup;
   submitted = false;
 
+  showNotification = false;
+  notifType: 'success' | 'error' | 'warning' = 'success';
+  notifMessage = '';
+
   statusOptions = ['Open', 'In Progress', 'Closed'];
   priorityOptions = ['High', 'Medium', 'Low'];
   assigneeOptions = ['Harshita Gupta', 'Rahul Sharma', 'Priya Singh', 'Amit Kumar', 'Sneha Gupta'];
@@ -29,9 +33,21 @@ export class AddTicketComponent {
 
   onSubmit() {
     this.submitted = true;
-    if (this.ticketForm.invalid) return;
-    alert('Ticket added successfully!');
-    this.router.navigate(['/tickets']);
+
+    if (this.ticketForm.invalid) {
+      this.notifType = 'error';
+      this.notifMessage = 'Please fill all required fields correctly.';
+      this.showNotification = true;
+      return;
+    }
+
+    this.notifType = 'success';
+    this.notifMessage = 'Ticket added successfully!';
+    this.showNotification = true;
+
+    setTimeout(() => {
+      this.router.navigate(['/tickets']);
+    }, 5000);
   }
 
   onCancel() {

@@ -1,0 +1,5 @@
+<div class="notification" [ngClass]="type" *ngIf="show">
+  <span class="notif-icon">{{ icon }}</span>
+  <span class="notif-message">{{ message }}</span>
+  <button class="notif-close" (click)="close()">✕</button>
+</div>

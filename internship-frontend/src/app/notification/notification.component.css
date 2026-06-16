@@ -1,0 +1,46 @@
+.notification {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notif-icon { font-size: 18px; flex-shrink: 0; }
+.notif-message { flex: 1; }
+.notif-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0 4px;
+}
+.notif-close:hover { opacity: 1; }
+
+.notification.success {
+  background: #d1f0e4;
+  color: #0f6e56;
+  border: 1.5px solid #9FE1CB;
+}
+
+.notification.error {
+  background: #ffe0e0;
+  color: #9b1c1c;
+  border: 1.5px solid #fca5a5;
+}
+
+.notification.warning {
+  background: #faeeda;
+  color: #633806;
+  border: 1.5px solid #fed7aa;
+}

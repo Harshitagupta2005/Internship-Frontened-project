@@ -48,3 +48,5 @@
 .retry-btn:hover { background:#7f1d1d; }
 
 @media(max-width:768px) { .ticket-page{padding:16px; margin-left:0} .search-bar{max-width:100%} }
+.title-link { color: #0a3d2b; text-decoration: none; cursor: pointer; }
+.title-link:hover { color: #1D9E75; text-decoration: underline; }

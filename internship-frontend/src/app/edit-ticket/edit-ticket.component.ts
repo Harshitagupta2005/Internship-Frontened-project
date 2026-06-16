@@ -12,6 +12,10 @@ export class EditTicketComponent implements OnInit {
   submitted = false;
   ticketId = '';
 
+  showNotification = false;
+  notifType: 'success' | 'error' | 'warning' = 'success';
+  notifMessage = '';
+
   statusOptions = ['Open', 'In Progress', 'Closed'];
   priorityOptions = ['High', 'Medium', 'Low'];
   assigneeOptions = ['Harshita Gupta', 'Rahul Sharma', 'Priya Singh', 'Amit Kumar', 'Sneha Gupta'];
@@ -46,9 +50,21 @@ export class EditTicketComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    if (this.ticketForm.invalid) return;
-    alert('Ticket updated successfully!');
-    this.router.navigate(['/tickets']);
+
+    if (this.ticketForm.invalid) {
+      this.notifType = 'error';
+      this.notifMessage = 'Please fix the errors before submitting.';
+      this.showNotification = true;
+      return;
+    }
+
+    this.notifType = 'success';
+    this.notifMessage = 'Ticket updated successfully!';
+    this.showNotification = true;
+
+    setTimeout(() => {
+      this.router.navigate(['/tickets']);
+    }, 1200);
   }
 
   onCancel() {

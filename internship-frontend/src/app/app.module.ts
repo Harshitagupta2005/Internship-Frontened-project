@@ -15,6 +15,8 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { TicketListComponent } from './ticket-list/ticket-list.component';
 import { AddTicketComponent } from './add-ticket/add-ticket.component';
 import { EditTicketComponent } from './edit-ticket/edit-ticket.component';
+import { TicketDetailsComponent } from './ticket-details/ticket-details.component';
+import { NotificationComponent } from './notification/notification.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -24,6 +26,7 @@ const routes: Routes = [
   { path: 'tickets', component: TicketListComponent },
   { path: 'tickets/add', component: AddTicketComponent },
   { path: 'tickets/edit/:id', component: EditTicketComponent },
+  { path: 'tickets/:id', component: TicketDetailsComponent },
   { path: '**', redirectTo: '' }
 ];
 
@@ -32,7 +35,8 @@ const routes: Routes = [
     AppComponent, HeaderComponent, FooterComponent,
     HomeComponent, DashboardComponent, ProfileComponent,
     ContactComponent, SidebarComponent, TicketListComponent,
-    AddTicketComponent, EditTicketComponent
+    AddTicketComponent, EditTicketComponent, TicketDetailsComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,
