@@ -13,6 +13,9 @@ export class TicketListComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
 
+  currentPage = 1;
+  itemsPerPage = 10;
+
   constructor(private ticketService: TicketService) {}
 
   ngOnInit() {
@@ -22,13 +25,12 @@ export class TicketListComponent implements OnInit {
   loadTickets() {
     this.isLoading = true;
     this.errorMessage = '';
-
     this.ticketService.getTickets().subscribe({
       next: (data) => {
         this.tickets = data;
         this.isLoading = false;
       },
-      error: (err) => {
+      error: () => {
         this.errorMessage = 'Failed to load tickets. Please try again.';
         this.isLoading = false;
       }
@@ -40,5 +42,20 @@ export class TicketListComponent implements OnInit {
     return this.tickets.filter(t =>
       t.title.toLowerCase().includes(this.searchText.toLowerCase())
     );
+  }
+
+  get paginatedTickets(): Ticket[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.filteredTickets.slice(start, start + this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredTickets.length / this.itemsPerPage);
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
   }
 }

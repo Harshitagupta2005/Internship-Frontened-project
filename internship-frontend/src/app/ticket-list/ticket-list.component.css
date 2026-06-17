@@ -50,3 +50,23 @@
 @media(max-width:768px) { .ticket-page{padding:16px; margin-left:0} .search-bar{max-width:100%} }
 .title-link { color: #0a3d2b; text-decoration: none; cursor: pointer; }
 .title-link:hover { color: #1D9E75; text-decoration: underline; }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  font-weight: bold;
+  background-color: #198754;
+  color: white;
+  border: none;
+}
