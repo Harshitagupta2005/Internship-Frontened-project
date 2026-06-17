@@ -66,7 +66,7 @@
               </td>
               <td class="assigned">{{ ticket.assignedTo }}</td>
               <td>
-                <a [routerLink]="['/tickets/edit', ticket.id]" class="btn-edit">✏️ Edit</a>
+                <a [routerLink]="['/tickets/edit', ticket.id]" class="btn-edit">Edit</a>
               </td>
             </tr>
             <tr *ngIf="filteredTickets.length === 0">
