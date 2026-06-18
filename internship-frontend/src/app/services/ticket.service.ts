@@ -12,23 +12,24 @@ export class TicketService {
   private apiUrl = 'http://127.0.0.1:8000/api';
 
   constructor(private http: HttpClient) {}
-getTickets(): Observable<Ticket[]> {
-  return this.http.get<any>(`${this.apiUrl}/tickets?per_page=100`).pipe(
-    map((res: any) => {
-      const list = res.data || [];
-      return list.map((t: any) => ({
-        id: t.id,
-        title: t.title,
-        description: t.description,
-        status: t.status,
-        priority: t.priority,
-        assignedTo: t.assigned_to?.name || 'Unassigned',
-        createdDate: t.created_at?.substring(0, 10)
-      }));
-    }),
-    catchError(() => throwError(() => new Error('API unavailable.')))
-  );
-}
+
+  getTickets(): Observable<Ticket[]> {
+    return this.http.get<any>(`${this.apiUrl}/tickets?per_page=100`).pipe(
+      map((res: any) => {
+        const list = res.data || [];
+        return list.map((t: any) => ({
+          id: t.id,
+          title: t.title,
+          description: t.description,
+          status: t.status,
+          priority: t.priority,
+          assignedTo: t.assigned_to?.name || 'Unassigned',
+          createdDate: t.created_at?.substring(0, 10)
+        }));
+      }),
+      catchError(() => throwError(() => new Error('API unavailable.')))
+    );
+  }
 
   getTicketById(id: string): Observable<Ticket> {
     return this.http.get<any>(`${this.apiUrl}/tickets/${id}`).pipe(
@@ -40,11 +41,20 @@ getTickets(): Observable<Ticket[]> {
           description: t.description,
           status: t.status,
           priority: t.priority,
-          assignedTo: t.assigned_to?.name || t.assignedTo || 'Unassigned',
-          createdDate: t.created_at?.substring(0, 10) || t.createdDate
-        } as Ticket;
+          assignedTo: t.assigned_to?.name || 'Unassigned',
+          assignedToId: t.assigned_to?.id || '',
+          createdDate: t.created_at?.substring(0, 10)
+        } as any;
       }),
       catchError(() => throwError(() => new Error('Ticket not found or API unavailable.')))
     );
+  }
+
+  createTicket(ticket: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/tickets`, ticket);
+  }
+
+  updateTicket(id: string, ticket: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/tickets/${id}`, ticket);
   }
 }

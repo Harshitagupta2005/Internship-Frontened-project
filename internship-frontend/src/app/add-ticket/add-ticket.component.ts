@@ -1,33 +1,47 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TicketService } from '../services/ticket.service';
 
 @Component({
   selector: 'app-add-ticket',
   templateUrl: './add-ticket.component.html',
   styleUrls: ['./add-ticket.component.css']
 })
-export class AddTicketComponent {
+export class AddTicketComponent implements OnInit {
   ticketForm: FormGroup;
   submitted = false;
+  isSubmitting = false;
 
   showNotification = false;
   notifType: 'success' | 'error' | 'warning' = 'success';
   notifMessage = '';
 
-  statusOptions = ['Open', 'In Progress', 'Closed'];
-  priorityOptions = ['High', 'Medium', 'Low'];
-  assigneeOptions = ['Harshita Gupta', 'Rahul Sharma', 'Priya Singh', 'Amit Kumar', 'Sneha Gupta'];
+  statusOptions = ['open', 'in_progress', 'closed'];
+  priorityOptions = ['high', 'medium', 'low'];
+  users: {id: number, name: string}[] = [
+    {id: 1, name: 'Super Admin'},
+    {id: 2, name: 'HR Admin'},
+    {id: 3, name: 'Rahul Sharma'},
+    {id: 4, name: 'Kavita Joshi'},
+    {id: 5, name: 'Amit Verma'}
+  ];
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private ticketService: TicketService
+  ) {
     this.ticketForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
       status: ['', Validators.required],
       priority: ['', Validators.required],
-      assignedTo: ['', Validators.required]
+      assigned_to: ['', Validators.required]
     });
   }
+
+  ngOnInit() {}
 
   get f() { return this.ticketForm.controls; }
 
@@ -41,13 +55,48 @@ export class AddTicketComponent {
       return;
     }
 
-    this.notifType = 'success';
-    this.notifMessage = 'Ticket added successfully!';
-    this.showNotification = true;
+    this.isSubmitting = true;
+    this.showNotification = false;
 
-    setTimeout(() => {
-      this.router.navigate(['/tickets']);
-    }, 5000);
+  const formData = {
+  title: this.ticketForm.value.title,
+  description: this.ticketForm.value.description,
+  status: this.ticketForm.value.status,
+  priority: this.ticketForm.value.priority,
+  user_id: Number(this.ticketForm.value.assigned_to),
+  assigned_to: Number(this.ticketForm.value.assigned_to)
+};
+this.ticketService.createTicket(formData).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.notifType = 'success';
+        this.notifMessage = 'Ticket added successfully!';
+        this.showNotification = true;
+        setTimeout(() => this.router.navigate(['/tickets']), 1200);
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        this.handleBackendErrors(err);
+      }
+    });
+  }
+
+  handleBackendErrors(err: any) {
+    if (err.error && err.error.errors) {
+      const backendErrors = err.error.errors;
+      Object.keys(backendErrors).forEach(field => {
+        const control = this.ticketForm.get(field);
+        if (control) {
+          control.setErrors({ backend: backendErrors[field][0] });
+        }
+      });
+      this.notifType = 'error';
+      this.notifMessage = 'Please fix the errors below.';
+    } else {
+      this.notifType = 'error';
+      this.notifMessage = 'Failed to add ticket. Please try again.';
+    }
+    this.showNotification = true;
   }
 
   onCancel() {
