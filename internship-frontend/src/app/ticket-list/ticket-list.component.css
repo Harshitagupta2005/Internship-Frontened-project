@@ -50,23 +50,12 @@
 @media(max-width:768px) { .ticket-page{padding:16px; margin-left:0} .search-bar{max-width:100%} }
 .title-link { color: #0a3d2b; text-decoration: none; cursor: pointer; }
 .title-link:hover { color: #1D9E75; text-decoration: underline; }
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  margin-top: 20px;
-  width: 100%;
-}
 
-.pagination button {
-  padding: 6px 12px;
-  cursor: pointer;
-}
-
-.pagination button.active {
-  font-weight: bold;
-  background-color: #198754;
-  color: white;
-  border: none;
-}
+.actions-col { display: flex; gap: 8px; align-items: center; }
+.btn-delete { background:#fff0f0; color:#9b1c1c; padding:6px 14px; border-radius:8px; font-size:13px; font-weight:600; border:1px solid #fca5a5; cursor:pointer; transition:background 0.2s; }
+.btn-delete:hover { background:#fde8e8; }
+.pagination { display:flex; align-items:center; gap:8px; margin-top:20px; justify-content:center; flex-wrap:wrap; }
+.page-btn { background:#1D9E75; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; }
+.page-btn:disabled { background:#ccc; cursor:not-allowed; }
+.page-num-btn { background:white; color:#1D9E75; border:1.5px solid #1D9E75; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:500; }
+.page-num-btn.active-page { background:#1D9E75; color:white; }

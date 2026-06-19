@@ -20,3 +20,5 @@
 .info-label { font-weight: 600; color: #1D9E75; min-width: 120px; }
 
 @media(max-width: 600px) { .dashboard{padding: 16px} .profile-card{flex-direction: column; text-align: center} .info-row{justify-content: center} }
+.loading-val { color: #aaa; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }

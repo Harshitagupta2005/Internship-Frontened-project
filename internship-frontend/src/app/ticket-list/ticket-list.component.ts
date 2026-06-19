@@ -13,6 +13,11 @@ export class TicketListComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
 
+  showNotification = false;
+  notifType: 'success' | 'error' | 'warning' = 'success';
+  notifMessage = '';
+
+  // Pagination
   currentPage = 1;
   itemsPerPage = 10;
 
@@ -25,6 +30,7 @@ export class TicketListComponent implements OnInit {
   loadTickets() {
     this.isLoading = true;
     this.errorMessage = '';
+
     this.ticketService.getTickets().subscribe({
       next: (data) => {
         this.tickets = data;
@@ -33,6 +39,35 @@ export class TicketListComponent implements OnInit {
       error: () => {
         this.errorMessage = 'Failed to load tickets. Please try again.';
         this.isLoading = false;
+      }
+    });
+  }
+
+  deleteTicket(ticket: Ticket) {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ticket "${ticket.title}"?\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    this.ticketService.deleteTicket(String(ticket.id)).subscribe({
+      next: () => {
+        this.tickets = this.tickets.filter(t => t.id !== ticket.id);
+
+        // Page fix karo agar current page ab exist nahi karta
+        if (this.currentPage > this.totalPages) {
+          this.currentPage = this.totalPages;
+        }
+
+        this.notifType = 'success';
+        this.notifMessage = `Ticket "${ticket.title}" deleted successfully!`;
+        this.showNotification = true;
+        setTimeout(() => { this.showNotification = false; }, 3000);
+      },
+      error: () => {
+        this.notifType = 'error';
+        this.notifMessage = 'Failed to delete ticket. Please try again.';
+        this.showNotification = true;
       }
     });
   }

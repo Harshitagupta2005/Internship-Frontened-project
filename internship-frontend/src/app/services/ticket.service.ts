@@ -41,10 +41,9 @@ export class TicketService {
           description: t.description,
           status: t.status,
           priority: t.priority,
-          assignedTo: t.assigned_to?.name || 'Unassigned',
-          assignedToId: t.assigned_to?.id || '',
-          createdDate: t.created_at?.substring(0, 10)
-        } as any;
+          assignedTo: t.assigned_to?.name || t.assignedTo || 'Unassigned',
+          createdDate: t.created_at?.substring(0, 10) || t.createdDate
+        } as Ticket;
       }),
       catchError(() => throwError(() => new Error('Ticket not found or API unavailable.')))
     );
@@ -57,4 +56,21 @@ export class TicketService {
   updateTicket(id: string, ticket: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/tickets/${id}`, ticket);
   }
+
+  deleteTicket(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/tickets/${id}`);
+  }
+
+  getStats(): Observable<any> {
+  return this.getTickets().pipe(
+    map((tickets: Ticket[]) => {
+      return {
+        total: tickets.length,
+        open: tickets.filter(t => t.status === 'open' || t.status === 'Open').length,
+        closed: tickets.filter(t => t.status === 'closed' || t.status === 'Closed').length,
+        high_priority: tickets.filter(t => t.priority === 'high' || t.priority === 'High').length
+      };
+    })
+  );
+}
 }
