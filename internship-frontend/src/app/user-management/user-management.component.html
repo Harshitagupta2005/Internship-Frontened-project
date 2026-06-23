@@ -1,0 +1,156 @@
+<app-notification
+  [type]="notifType"
+  [message]="notifMessage"
+  [show]="showNotification">
+</app-notification>
+
+
+<div class="page-header">
+
+  <div>
+    <h2>👥 User Management</h2>
+    <p>Employee Helpdesk — Manage System Users</p>
+  </div>
+
+
+  <button class="add-btn" (click)="goToAddUser()">
+    + Add User
+  </button>
+
+</div>
+
+
+
+<div *ngIf="isLoading" class="loading-text">
+  Loading users...
+</div>
+
+
+
+<div *ngIf="errorMessage && !isLoading" class="error-text">
+  {{ errorMessage }}
+</div>
+
+
+
+
+<table 
+  class="user-table" 
+  *ngIf="!isLoading && !errorMessage">
+
+
+  <thead>
+
+    <tr>
+      <th>S.No</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Role</th>
+    </tr>
+
+  </thead>
+
+
+
+  <tbody>
+
+
+    <tr *ngFor="let user of paginatedUsers; let i = index">
+
+
+      <td>
+        {{ (currentPage - 1) * itemsPerPage + i + 1 }}
+      </td>
+
+
+      <td>
+        {{ user.name }}
+      </td>
+
+
+      <td>
+        {{ user.email }}
+      </td>
+
+
+      <td>
+
+        <span 
+          class="role-badge" 
+          [ngClass]="user.role">
+
+          {{ user.role }}
+
+        </span>
+
+      </td>
+
+
+    </tr>
+
+
+
+    <tr *ngIf="users.length === 0">
+
+      <td colspan="4" class="no-data">
+
+        No users found.
+
+      </td>
+
+    </tr>
+
+
+  </tbody>
+
+
+</table>
+
+
+
+
+<!-- Pagination -->
+
+<div 
+ class="pagination" 
+ *ngIf="totalPages > 1">
+
+
+  <button
+    (click)="changePage(currentPage - 1)"
+    [disabled]="currentPage === 1">
+
+    Previous
+
+  </button>
+
+
+
+
+  <button
+    *ngFor="let page of [].constructor(totalPages); let i=index"
+    (click)="changePage(i + 1)"
+    [class.active]="currentPage === i + 1">
+
+
+    {{ i + 1 }}
+
+
+  </button>
+
+
+
+
+
+  <button
+    (click)="changePage(currentPage + 1)"
+    [disabled]="currentPage === totalPages">
+
+
+    Next
+
+
+  </button>
+
+
+</div>

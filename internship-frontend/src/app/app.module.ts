@@ -20,6 +20,8 @@ import { NotificationComponent } from './notification/notification.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { UserManagementComponent } from './user-management/user-management.component';
+import { AddUserComponent } from './add-user/add-user.component';
 
 
 const routes: Routes = [
@@ -32,6 +34,8 @@ const routes: Routes = [
   { path: 'tickets/add', component: AddTicketComponent, canActivate: [AuthGuard] },
   { path: 'tickets/edit/:id', component: EditTicketComponent, canActivate: [AuthGuard] },
   { path: 'tickets/:id', component: TicketDetailsComponent, canActivate: [AuthGuard] },
+  { path: 'users', component: UserManagementComponent, canActivate: [AuthGuard] },
+{ path: 'users/add', component: AddUserComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 
@@ -41,7 +45,7 @@ const routes: Routes = [
     HomeComponent, DashboardComponent, ProfileComponent,
     ContactComponent, SidebarComponent, TicketListComponent,
     AddTicketComponent, EditTicketComponent, TicketDetailsComponent,
-    NotificationComponent, LoginComponent
+    NotificationComponent, LoginComponent, UserManagementComponent, AddUserComponent
   ],
   imports: [
     BrowserModule,
