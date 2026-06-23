@@ -133,21 +133,14 @@ placeholder="Enter password"
 
 <label>Role *</label>
 
-
 <select formControlName="role">
-
-
 <option value="">
 Select Role
 </option>
-
-
 <option 
 *ngFor="let role of roleOptions"
-[value]="role">
-
-{{role}}
-
+[value]="role.value">
+{{role.label}}
 </option>
 
 

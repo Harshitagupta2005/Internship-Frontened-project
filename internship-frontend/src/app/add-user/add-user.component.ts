@@ -21,11 +21,11 @@ export class AddUserComponent {
   notifMessage = '';
 
   roleOptions = [
-    'admin',
-    'agent',
-    'employee',
-    'manager'
-  ];
+  {label:'Admin', value:'admin'},
+  {label:'User Agent', value:'agent'},
+  {label:'Employee', value:'employee'},
+  {label:'Manager', value:'manager'}
+];
 
 
   constructor(
