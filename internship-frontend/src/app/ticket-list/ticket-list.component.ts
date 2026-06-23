@@ -29,20 +29,17 @@ export class TicketListComponent implements OnInit {
 
 
 
-  // Pagination
+  // FRONTEND PAGINATION
 
   currentPage = 1;
 
-  lastPage = 1;
-
-  totalTickets = 0;
+  itemsPerPage = 10;
 
 
 
   constructor(
     private ticketService: TicketService
   ) {}
-
 
 
 
@@ -55,46 +52,22 @@ export class TicketListComponent implements OnInit {
 
 
 
-
-  loadTickets(page:number = 1){
+  loadTickets(){
 
 
     this.isLoading = true;
 
-    this.errorMessage = '';
 
-
-
-    this.ticketService.getTickets(page)
-    .subscribe({
-
+    this.ticketService.getTickets().subscribe({
 
 
       next:(res:any)=>{
 
 
-
-        this.tickets = res.data || [];
-
-
-
-        this.currentPage =
-        res.meta?.current_page || 1;
-
-
-
-        this.lastPage =
-        res.meta?.last_page || 1;
-
-
-
-        this.totalTickets =
-        res.meta?.total || this.tickets.length;
-
+        this.tickets = res.data || res;
 
 
         this.isLoading = false;
-
 
 
       },
@@ -108,9 +81,7 @@ export class TicketListComponent implements OnInit {
         'Failed to load tickets. Please try again.';
 
 
-
         this.isLoading = false;
-
 
 
       }
@@ -130,16 +101,13 @@ export class TicketListComponent implements OnInit {
   deleteTicket(ticket:Ticket){
 
 
-
     const confirmDelete =
     window.confirm(
       `Are you sure you want to delete ticket "${ticket.title}"?`
     );
 
 
-
     if(!confirmDelete) return;
-
 
 
 
@@ -147,9 +115,13 @@ export class TicketListComponent implements OnInit {
     .subscribe({
 
 
-
       next:()=>{
 
+
+        this.tickets =
+        this.tickets.filter(
+          t=>t.id !== ticket.id
+        );
 
 
         this.notifType='success';
@@ -158,17 +130,10 @@ export class TicketListComponent implements OnInit {
         'Ticket deleted successfully!';
 
 
-
         this.showNotification=true;
 
 
-
-        this.loadTickets(this.currentPage);
-
-
-
       },
-
 
 
       error:()=>{
@@ -177,8 +142,7 @@ export class TicketListComponent implements OnInit {
         this.notifType='error';
 
         this.notifMessage =
-        'Failed to delete ticket.';
-
+        'Failed to delete ticket';
 
 
         this.showNotification=true;
@@ -188,7 +152,6 @@ export class TicketListComponent implements OnInit {
 
 
     });
-
 
 
   }
@@ -209,11 +172,9 @@ export class TicketListComponent implements OnInit {
     }
 
 
+    return this.tickets.filter(t=>
 
-    return this.tickets.filter(ticket =>
-
-      ticket.title
-      .toLowerCase()
+      t.title.toLowerCase()
       .includes(
         this.searchText.toLowerCase()
       )
@@ -228,21 +189,62 @@ export class TicketListComponent implements OnInit {
 
 
 
+  // SHOW ONLY 10 TICKETS
+
+  get paginatedTickets():Ticket[]{
+
+
+    const start =
+    (this.currentPage-1)
+    * this.itemsPerPage;
+
+
+
+    return this.filteredTickets.slice(
+      start,
+      start + this.itemsPerPage
+    );
+
+
+  }
+
+
+
+
+
+
+
+  get totalPages():number{
+
+
+    return Math.ceil(
+      this.filteredTickets.length /
+      this.itemsPerPage
+    );
+
+
+  }
+
+
+
+
+
+
 
   changePage(page:number){
 
 
-    if(page >=1 && page <= this.lastPage){
+    if(
+      page >=1 &&
+      page <= this.totalPages
+    ){
 
-
-      this.loadTickets(page);
-
+      this.currentPage = page;
 
     }
 
 
   }
-
 
 
 

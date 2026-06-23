@@ -2,6 +2,7 @@
 
   <app-sidebar></app-sidebar>
 
+
   <div class="ticket-page">
 
 
@@ -21,11 +22,19 @@
 
 
 
+
     <app-notification
-      [type]="notifType"
-      [message]="notifMessage"
-      [show]="showNotification">
+
+    [type]="notifType"
+
+    [message]="notifMessage"
+
+    [show]="showNotification">
+
     </app-notification>
+
+
+
 
 
 
@@ -34,13 +43,19 @@
 
     <div class="loading-box" *ngIf="isLoading">
 
+
       <div class="spinner"></div>
+
 
       <p>
         Loading tickets, please wait...
       </p>
 
+
     </div>
+
+
+
 
 
 
@@ -48,7 +63,9 @@
 
     <!-- Error -->
 
+
     <div class="error-box" *ngIf="errorMessage && !isLoading">
+
 
       <span>
         ⚠️ {{errorMessage}}
@@ -56,14 +73,21 @@
 
 
       <button
+
       class="retry-btn"
-      (click)="loadTickets(currentPage)">
+
+      (click)="loadTickets()">
+
 
       🔄 Retry
 
+
       </button>
 
+
     </div>
+
+
 
 
 
@@ -72,6 +96,9 @@
 
 
     <div *ngIf="!isLoading && !errorMessage">
+
+
+
 
 
 
@@ -89,25 +116,38 @@
 
         <input
 
+
         type="text"
+
 
         [(ngModel)]="searchText"
 
+
+        (input)="currentPage=1"
+
+
         placeholder="Search tickets by title..."
+
 
         class="search-input">
 
 
 
+
+
         <span class="search-count">
 
-          {{totalTickets}} tickets found
+
+          {{filteredTickets.length}} tickets found
+
 
         </span>
 
 
 
       </div>
+
+
 
 
 
@@ -124,10 +164,12 @@
         <table class="ticket-table">
 
 
+
           <thead>
 
 
             <tr>
+
 
               <th>S.No</th>
 
@@ -152,11 +194,16 @@
 
 
 
+
           <tbody>
 
 
 
-            <tr *ngFor="let ticket of filteredTickets; let i=index">
+            <tr
+
+            *ngFor="let ticket of paginatedTickets; let i=index">
+
+
 
 
 
@@ -172,11 +219,17 @@
 
 
 
+
+
               <td class="ticket-title">
 
 
                 <a
+
+
                 [routerLink]="['/tickets',ticket.id]"
+
+
                 class="title-link">
 
 
@@ -186,7 +239,10 @@
                 </a>
 
 
+
               </td>
+
+
 
 
 
@@ -196,13 +252,16 @@
 
 
                 <span class="badge">
+
 
                   {{ticket.status}}
 
+
                 </span>
 
 
               </td>
+
 
 
 
@@ -214,12 +273,16 @@
 
                 <span class="badge">
 
+
                   {{ticket.priority}}
+
 
                 </span>
 
 
               </td>
+
+
 
 
 
@@ -242,15 +305,19 @@
               <td class="actions-col">
 
 
+
                 <a
 
                 [routerLink]="['/tickets/edit',ticket.id]"
 
                 class="btn-edit">
 
+
                 ✏️
 
+
                 </a>
+
 
 
 
@@ -262,12 +329,18 @@
 
                 (click)="deleteTicket(ticket)">
 
+
                 🗑️
+
 
                 </button>
 
 
+
+
               </td>
+
+
 
 
 
@@ -278,24 +351,36 @@
 
 
 
-            <tr *ngIf="filteredTickets.length === 0">
+
+
+
+            <tr *ngIf="paginatedTickets.length===0">
 
 
               <td colspan="6" class="no-results">
 
+
                 No tickets found
+
 
               </td>
 
 
             </tr>
+
+
 
 
 
           </tbody>
 
 
+
+
+
         </table>
+
+
 
 
       </div>
@@ -308,20 +393,33 @@
 
 
 
+
+
+
       <!-- Pagination -->
 
 
-      <div class="pagination" *ngIf="lastPage > 1">
+      <div
+
+      class="pagination"
+
+      *ngIf="totalPages > 1">
+
+
+
 
 
 
         <button
 
+
         class="page-btn"
+
 
         (click)="changePage(currentPage-1)"
 
-        [disabled]="currentPage === 1">
+
+        [disabled]="currentPage===1">
 
 
         ← Prev
@@ -337,13 +435,17 @@
 
         <button
 
+
         class="page-num-btn"
 
-        *ngFor="let page of [].constructor(lastPage); let i=index"
+
+        *ngFor="let page of [].constructor(totalPages); let i=index"
+
 
         (click)="changePage(i+1)"
 
-        [class.active-page]="currentPage === i+1">
+
+        [class.active-page]="currentPage===i+1">
 
 
         {{i+1}}
@@ -359,17 +461,22 @@
 
         <button
 
+
         class="page-btn"
+
 
         (click)="changePage(currentPage+1)"
 
-        [disabled]="currentPage === lastPage">
+
+        [disabled]="currentPage===totalPages">
 
 
         Next →
 
 
         </button>
+
+
 
 
 
@@ -380,7 +487,21 @@
 
 
 
+
+      <div class="page-info">
+
+
+        Page {{currentPage}} of {{totalPages}}
+
+
+      </div>
+
+
+
+
+
     </div>
+
 
 
   </div>
