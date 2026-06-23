@@ -5,13 +5,10 @@
 
 .main-content {
   flex: 1;
-  padding: 20px;
   overflow-x: hidden;
-  margin-left: 240px; 
-  min-height: calc(100vh - 64px - 56px);/* 
-  boxsidebar width */
-  box-sizing: border-box;
+  margin-left: 240px;   /* 👈 add karo - sidebar ki width jitna */
 }
+
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0 !important;

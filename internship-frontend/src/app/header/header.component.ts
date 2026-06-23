@@ -9,4 +9,8 @@ export class HeaderComponent {
     const target = event.target as HTMLElement;
     if (!target.closest('.header')) this.menuOpen = false;
   }
+  logout() {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
 }

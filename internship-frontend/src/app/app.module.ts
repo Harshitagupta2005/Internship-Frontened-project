@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
@@ -17,16 +17,21 @@ import { AddTicketComponent } from './add-ticket/add-ticket.component';
 import { EditTicketComponent } from './edit-ticket/edit-ticket.component';
 import { TicketDetailsComponent } from './ticket-details/ticket-details.component';
 import { NotificationComponent } from './notification/notification.component';
+import { LoginComponent } from './login/login.component';
+import { AuthGuard } from './guards/auth.guard';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+
 
 const routes: Routes = [
+  { path: 'login', component: LoginComponent },
   { path: '', component: HomeComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'contact', component: ContactComponent },
-  { path: 'tickets', component: TicketListComponent },
-  { path: 'tickets/add', component: AddTicketComponent },
-  { path: 'tickets/edit/:id', component: EditTicketComponent },
-  { path: 'tickets/:id', component: TicketDetailsComponent },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'contact', component: ContactComponent, canActivate: [AuthGuard] },
+  { path: 'tickets', component: TicketListComponent, canActivate: [AuthGuard] },
+  { path: 'tickets/add', component: AddTicketComponent, canActivate: [AuthGuard] },
+  { path: 'tickets/edit/:id', component: EditTicketComponent, canActivate: [AuthGuard] },
+  { path: 'tickets/:id', component: TicketDetailsComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 
@@ -36,7 +41,7 @@ const routes: Routes = [
     HomeComponent, DashboardComponent, ProfileComponent,
     ContactComponent, SidebarComponent, TicketListComponent,
     AddTicketComponent, EditTicketComponent, TicketDetailsComponent,
-    NotificationComponent
+    NotificationComponent, LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -45,7 +50,14 @@ const routes: Routes = [
     HttpClientModule,
     RouterModule.forRoot(routes)
   ],
-  providers: [],
+  providers: [
+    AuthGuard,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,   // 👈 Fix
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

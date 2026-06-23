@@ -1,30 +1,110 @@
 <header class="header">
   <div class="header-inner">
-    <a routerLink="/" class="logo" (click)="closeMenu()">
+
+  <a routerLink="/home" class="logo" (click)="closeMenu()">
       <span class="logo-icon">🌿</span>
       <span class="logo-text">InternshipApp</span>
     </a>
+
     <nav class="desktop-nav">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-link">Home</a>
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Dashboard</a>
-      <a routerLink="/profile" routerLinkActive="active" class="nav-link">Profile</a>
-      <a routerLink="/contact" routerLinkActive="active" class="nav-link">Contact</a>
-      <a routerLink="/tickets" routerLinkActive="active" class="nav-link">Tickets</a>
-    </nav>
-    <button class="hamburger" (click)="toggleMenu()" [class.open]="menuOpen">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-  <nav class="mobile-nav" [class.open]="menuOpen">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="mobile-link" (click)="closeMenu()">🏠 Home</a>
-    <a routerLink="/dashboard" routerLinkActive="active" class="mobile-link" (click)="closeMenu()">📊 Dashboard</a>
-    <a routerLink="/profile" routerLinkActive="active" class="mobile-link" (click)="closeMenu()">👤 Profile</a>
-    <a routerLink="/contact" routerLinkActive="active" class="mobile-link" (click)="closeMenu()">📬 Contact</a>
-  <a routerLink="/tickets"
+      <a routerLink="/home"
    routerLinkActive="active"
-   class="mobile-link"
-   (click)="closeMenu()">
-   🎫 Tickets
+   [routerLinkActiveOptions]="{exact:true}"
+   class="nav-link">
+   Home
 </a>
+
+      <a routerLink="/dashboard"
+         routerLinkActive="active"
+         class="nav-link">
+         Dashboard
+      </a>
+
+      <a routerLink="/profile"
+         routerLinkActive="active"
+         class="nav-link">
+         Profile
+      </a>
+
+      <a routerLink="/contact"
+         routerLinkActive="active"
+         class="nav-link">
+         Contact
+      </a>
+
+      <a routerLink="/tickets"
+         routerLinkActive="active"
+         class="nav-link">
+         Tickets
+      </a>
+    </nav>
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="logout-btn"
+        (click)="logout()">
+        Logout
+      </button>
+
+      <button
+        class="hamburger"
+        (click)="toggleMenu()"
+        [class.open]="menuOpen">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+    </div>
+
+  </div>
+
+  <nav class="mobile-nav" [class.open]="menuOpen">
+
+    <a routerLink="/"
+       routerLinkActive="active"
+       [routerLinkActiveOptions]="{exact:true}"
+       class="mobile-link"
+       (click)="closeMenu()">
+       Home
+    </a>
+
+    <a routerLink="/dashboard"
+       routerLinkActive="active"
+       class="mobile-link"
+       (click)="closeMenu()">
+       Dashboard
+    </a>
+
+    <a routerLink="/profile"
+       routerLinkActive="active"
+       class="mobile-link"
+       (click)="closeMenu()">
+       Profile
+    </a>
+
+    <a routerLink="/contact"
+       routerLinkActive="active"
+       class="mobile-link"
+       (click)="closeMenu()">
+       Contact
+    </a>
+
+    <a routerLink="/tickets"
+       routerLinkActive="active"
+       class="mobile-link"
+       (click)="closeMenu()">
+       Tickets
+    </a>
+
+    <button
+      type="button"
+      class="mobile-logout-btn"
+      (click)="logout()">
+      Logout
+    </button>
+
   </nav>
 </header>
