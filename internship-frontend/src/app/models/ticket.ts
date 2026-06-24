@@ -1,9 +1,10 @@
 export interface Ticket {
-  id: string;
+  id: string | number;
   title: string;
   description: string;
   status: string;
   priority: string;
   assignedTo: string;
-  createdDate: string;
+  assignedToId?: string;   // 👈 ye line add karo
+  createdDate?: string;
 }

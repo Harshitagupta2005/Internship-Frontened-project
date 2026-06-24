@@ -13,6 +13,16 @@ export class TicketDetailsComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
 
+  // NOTIFICATION
+  showNotification = false;
+  notifType: 'success' | 'error' | 'warning' = 'success';
+  notifMessage = '';
+
+  // ASSIGN DIALOG
+  showAssignDialog = false;
+  selectedTicketId: string = '';
+  selectedTicketAssignedToId: string = '';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -20,7 +30,13 @@ export class TicketDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadTicket();
+  }
+
+  loadTicket() {
     const id = this.route.snapshot.paramMap.get('id') || '';
+    this.isLoading = true;
+
     this.ticketService.getTicketById(id).subscribe({
       next: (data) => {
         this.ticket = data;
@@ -34,6 +50,31 @@ export class TicketDetailsComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  // ===== ASSIGN TICKET =====
+
+  openAssignDialog() {
+    if (!this.ticket) return;
+    this.selectedTicketId = String(this.ticket.id);
+    this.selectedTicketAssignedToId = this.ticket.assignedToId || '';
+    this.showAssignDialog = true;
+  }
+
+  closeAssignDialog() {
+    this.showAssignDialog = false;
+  }
+
+  onAssignResult(result: { success: boolean; message: string }) {
+    this.showAssignDialog = false;
+
+    this.notifType = result.success ? 'success' : 'error';
+    this.notifMessage = result.message;
+    this.showNotification = true;
+
+    if (result.success) {
+      this.loadTicket(); // refresh to show updated assigned user
+    }
   }
 
   goBack() {

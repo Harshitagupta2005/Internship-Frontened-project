@@ -123,7 +123,7 @@ export class AddUserComponent {
       },
 
 
-      error:(err)=>{
+      error:(err: any)=>{
 
         this.isSubmitting=false;
 

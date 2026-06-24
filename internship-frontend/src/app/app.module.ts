@@ -22,6 +22,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { AddUserComponent } from './add-user/add-user.component';
+import { AssignTicketComponent } from './assign-ticket/assign-ticket.component';
 
 
 const routes: Routes = [
@@ -36,6 +37,7 @@ const routes: Routes = [
   { path: 'tickets/:id', component: TicketDetailsComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UserManagementComponent, canActivate: [AuthGuard] },
 { path: 'users/add', component: AddUserComponent, canActivate: [AuthGuard] },
+{ path: 'tickets/assign/:id', component: AssignTicketComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 
@@ -45,7 +47,7 @@ const routes: Routes = [
     HomeComponent, DashboardComponent, ProfileComponent,
     ContactComponent, SidebarComponent, TicketListComponent,
     AddTicketComponent, EditTicketComponent, TicketDetailsComponent,
-    NotificationComponent, LoginComponent, UserManagementComponent, AddUserComponent
+    NotificationComponent, LoginComponent, UserManagementComponent, AddUserComponent, AssignTicketComponent
   ],
   imports: [
     BrowserModule,

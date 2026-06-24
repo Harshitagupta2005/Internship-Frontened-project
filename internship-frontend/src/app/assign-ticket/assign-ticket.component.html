@@ -1,0 +1,24 @@
+<div class="modal-backdrop" (click)="onCancel()"></div>
+
+<div class="modal-box">
+  <h3>Assign Ticket</h3>
+
+  <div *ngIf="isLoading" class="loading-text">Loading users...</div>
+
+  <div *ngIf="!isLoading">
+    <label for="userSelect">Select User</label>
+    <select id="userSelect" [(ngModel)]="selectedUserId" name="userSelect">
+      <option value="" disabled>-- Select a user --</option>
+      <option *ngFor="let user of users" [value]="user.id">
+        {{ user.name }} ({{ user.email }})
+      </option>
+    </select>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving">Cancel</button>
+      <button class="btn-assign" (click)="onAssign()" [disabled]="!selectedUserId || isSaving">
+        {{ isSaving ? 'Assigning...' : 'Assign' }}
+      </button>
+    </div>
+  </div>
+</div>

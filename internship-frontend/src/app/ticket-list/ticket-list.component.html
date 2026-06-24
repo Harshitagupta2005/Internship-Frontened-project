@@ -2,509 +2,180 @@
 
   <app-sidebar></app-sidebar>
 
-
   <div class="ticket-page">
 
-
     <div class="page-header">
-
       <div>
         <h1>🎫 Ticket List</h1>
         <p>Employee Helpdesk — Ticket Management System</p>
       </div>
 
-
       <a routerLink="/tickets/add" class="btn-add">
         ➕ Add Ticket
       </a>
-
     </div>
-
-
-
 
     <app-notification
-
     [type]="notifType"
-
     [message]="notifMessage"
-
     [show]="showNotification">
-
     </app-notification>
 
-
-
-
-
-
-
     <!-- Loading -->
-
     <div class="loading-box" *ngIf="isLoading">
-
-
       <div class="spinner"></div>
-
-
-      <p>
-        Loading tickets, please wait...
-      </p>
-
-
+      <p>Loading tickets, please wait...</p>
     </div>
-
-
-
-
-
-
-
 
     <!-- Error -->
-
-
     <div class="error-box" *ngIf="errorMessage && !isLoading">
-
-
-      <span>
-        ⚠️ {{errorMessage}}
-      </span>
-
-
-      <button
-
-      class="retry-btn"
-
-      (click)="loadTickets()">
-
-
-      🔄 Retry
-
-
-      </button>
-
-
+      <span>⚠️ {{errorMessage}}</span>
+      <button class="retry-btn" (click)="loadTickets()">🔄 Retry</button>
     </div>
-
-
-
-
-
-
-
-
 
     <div *ngIf="!isLoading && !errorMessage">
 
-
-
-
-
-
       <!-- Search -->
-
-
       <div class="search-bar">
-
-
-        <span class="search-icon">
-          🔍
-        </span>
-
-
+        <span class="search-icon">🔍</span>
 
         <input
-
-
         type="text"
-
-
         [(ngModel)]="searchText"
-
-
         (input)="currentPage=1"
-
-
         placeholder="Search tickets by title..."
-
-
         class="search-input">
 
-
-
-
-
         <span class="search-count">
-
-
           {{filteredTickets.length}} tickets found
-
-
         </span>
-
-
-
       </div>
 
-
-
-
-
-
-
-
-
       <!-- Table -->
-
-
       <div class="table-wrapper">
-
-
         <table class="ticket-table">
 
-
-
           <thead>
-
-
             <tr>
-
-
               <th>S.No</th>
-
               <th>Title</th>
-
               <th>Status</th>
-
               <th>Priority</th>
-
               <th>Assigned To</th>
-
               <th>Actions</th>
-
-
             </tr>
-
-
           </thead>
-
-
-
-
-
-
 
           <tbody>
 
-
-
-            <tr
-
-            *ngFor="let ticket of paginatedTickets; let i=index">
-
-
-
-
+            <tr *ngFor="let ticket of paginatedTickets; let i=index">
 
               <td class="ticket-id">
-
-
                 {{((currentPage-1)*10)+i+1}}
-
-
               </td>
-
-
-
-
-
-
 
               <td class="ticket-title">
-
-
-                <a
-
-
-                [routerLink]="['/tickets',ticket.id]"
-
-
-                class="title-link">
-
-
+                <a [routerLink]="['/tickets',ticket.id]" class="title-link">
                 {{ticket.title}}
-
-
                 </a>
-
-
-
               </td>
 
-
-
-
-
-
-
+              <!-- STATUS: dropdown + badge -->
               <td>
+  <select
+  [(ngModel)]="ticket.status"
+  (ngModelChange)="onStatusChange(ticket, $event)"
+  class="status-select">
+    <option *ngFor="let s of statusOptions" [value]="s.value">{{s.label}}</option>
+  </select>
 
-
-                <span class="badge">
-
-
-                  {{ticket.status}}
-
-
-                </span>
-
-
-              </td>
-
-
-
-
-
-
-
+  <span class="badge" [ngClass]="getBadgeClass(ticket.status)">
+    {{ticket.status}}
+  </span>
+</td>
               <td>
-
-
                 <span class="badge">
-
-
                   {{ticket.priority}}
-
-
                 </span>
-
-
               </td>
-
-
-
-
-
-
 
               <td class="assigned">
-
-
                 {{ticket.assignedTo}}
-
-
               </td>
 
+              
 
+               <td class="actions-col">
 
+  <a [routerLink]="['/tickets/edit',ticket.id]" class="btn-edit" title="Edit">
+    ✏️
+  </a>
 
+  <button class="btn-assign-action" (click)="openAssignDialog(ticket)" title="Assign">
+    👤
+  </button>
 
+  <button class="btn-delete" (click)="deleteTicket(ticket)" title="Delete">
+    🗑️
+  </button>
 
-
-              <td class="actions-col">
-
-
-
-                <a
-
-                [routerLink]="['/tickets/edit',ticket.id]"
-
-                class="btn-edit">
-
-
-                ✏️
-
-
-                </a>
-
-
-
-
-
-
-                <button
-
-                class="btn-delete"
-
-                (click)="deleteTicket(ticket)">
-
-
-                🗑️
-
-
-                </button>
-
-
-
-
-              </td>
-
-
-
-
+</td>
 
             </tr>
-
-
-
-
-
-
-
-
 
             <tr *ngIf="paginatedTickets.length===0">
-
-
               <td colspan="6" class="no-results">
-
-
                 No tickets found
-
-
               </td>
-
-
             </tr>
-
-
-
-
 
           </tbody>
 
-
-
-
-
         </table>
-
-
-
-
       </div>
-
-
-
-
-
-
-
-
-
-
-
 
       <!-- Pagination -->
-
-
-      <div
-
-      class="pagination"
-
-      *ngIf="totalPages > 1">
-
-
-
-
-
+      <div class="pagination" *ngIf="totalPages > 1">
 
         <button
-
-
         class="page-btn"
-
-
         (click)="changePage(currentPage-1)"
-
-
         [disabled]="currentPage===1">
-
-
         ← Prev
-
-
         </button>
 
-
-
-
-
-
-
         <button
-
-
         class="page-num-btn"
-
-
         *ngFor="let page of [].constructor(totalPages); let i=index"
-
-
         (click)="changePage(i+1)"
-
-
         [class.active-page]="currentPage===i+1">
-
-
         {{i+1}}
-
-
         </button>
-
-
-
-
-
-
 
         <button
-
-
         class="page-btn"
-
-
         (click)="changePage(currentPage+1)"
-
-
         [disabled]="currentPage===totalPages">
-
-
         Next →
-
-
         </button>
-
-
-
-
 
       </div>
-
-
-
-
-
-
 
       <div class="page-info">
-
-
         Page {{currentPage}} of {{totalPages}}
-
-
       </div>
-
-
-
-
 
     </div>
 
-
-
   </div>
 
+  <!-- ASSIGN TICKET DIALOG -->
+  <app-assign-ticket
+  *ngIf="showAssignDialog"
+  [ticketId]="selectedTicketId"
+  [currentAssignedToId]="selectedTicketAssignedToId"
+  (close)="closeAssignDialog()"
+  (assigned)="onAssignResult($event)">
+  </app-assign-ticket>
 
 </div>
