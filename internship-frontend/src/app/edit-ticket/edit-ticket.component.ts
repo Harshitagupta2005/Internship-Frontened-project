@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TicketService } from '../services/ticket.service';
+import { UserService } from '../services/user.service';   // 👈 NAYA IMPORT
 
 
 @Component({
@@ -47,19 +48,10 @@ export class EditTicketComponent implements OnInit {
 
 
 
-  users: {id:number,name:string}[] = [
+  // 👇 HARDCODED LIST HATA DI, AB API SE AAYEGI
+  users: {id:number,name:string}[] = [];
 
-    {id:1,name:'Super Admin'},
-
-    {id:2,name:'HR Admin'},
-
-    {id:3,name:'Rahul Sharma'},
-
-    {id:4,name:'Kavita Joshi'},
-
-    {id:5,name:'Amit Verma'}
-
-  ];
+  isLoadingUsers = true;
 
 
 
@@ -72,7 +64,9 @@ export class EditTicketComponent implements OnInit {
 
     private route: ActivatedRoute,
 
-    private ticketService: TicketService
+    private ticketService: TicketService,
+
+    private userService: UserService   // 👈 NAYA INJECT
 
   ){
 
@@ -135,6 +129,8 @@ export class EditTicketComponent implements OnInit {
     this.route.snapshot.paramMap.get('id') || '';
 
 
+    this.loadUsers();   // 👈 NAYA CALL
+
 
     this.ticketService
     .getTicketById(this.ticketId)
@@ -161,7 +157,7 @@ export class EditTicketComponent implements OnInit {
 
 
           assigned_to:
-          data.assigned_to?.id || ''
+          data.assignedToId || ''
 
 
 
@@ -190,6 +186,41 @@ export class EditTicketComponent implements OnInit {
     });
 
 
+
+  }
+
+
+
+
+  // 👇 NAYA METHOD — USERS API SE LOAD KARO
+
+  loadUsers(){
+
+    this.isLoadingUsers = true;
+
+    this.userService.getUsers().subscribe({
+
+      next:(res:any)=>{
+
+        this.users = res;
+
+        this.isLoadingUsers = false;
+
+      },
+
+      error:()=>{
+
+        this.notifType = 'error';
+
+        this.notifMessage = 'Failed to load users list.';
+
+        this.showNotification = true;
+
+        this.isLoadingUsers = false;
+
+      }
+
+    });
 
   }
 
@@ -263,11 +294,6 @@ export class EditTicketComponent implements OnInit {
 
 
       priority:this.ticketForm.value.priority,
-
-
-      user_id:Number(
-        this.ticketForm.value.assigned_to
-      ),
 
 
       assigned_to:Number(
