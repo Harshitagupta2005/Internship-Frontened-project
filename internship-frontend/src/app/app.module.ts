@@ -23,6 +23,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { AddUserComponent } from './add-user/add-user.component';
 import { AssignTicketComponent } from './assign-ticket/assign-ticket.component';
+import { DepartmentListComponent } from './department-list/department-list.component';
+import { AddDepartmentComponent } from './add-department/add-department.component';
 
 
 const routes: Routes = [
@@ -38,7 +40,9 @@ const routes: Routes = [
   { path: 'users', component: UserManagementComponent, canActivate: [AuthGuard] },
 { path: 'users/add', component: AddUserComponent, canActivate: [AuthGuard] },
 { path: 'tickets/assign/:id', component: AssignTicketComponent, canActivate: [AuthGuard] },
-  { path: '**', redirectTo: '' }
+{ path: 'departments', component: DepartmentListComponent, canActivate: [AuthGuard] },
+{ path: 'departments/add', component: AddDepartmentComponent, canActivate: [AuthGuard] },
+ { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
@@ -47,7 +51,8 @@ const routes: Routes = [
     HomeComponent, DashboardComponent, ProfileComponent,
     ContactComponent, SidebarComponent, TicketListComponent,
     AddTicketComponent, EditTicketComponent, TicketDetailsComponent,
-    NotificationComponent, LoginComponent, UserManagementComponent, AddUserComponent, AssignTicketComponent
+    NotificationComponent, LoginComponent, UserManagementComponent, AddUserComponent, AssignTicketComponent,DepartmentListComponent,
+  AddDepartmentComponent
   ],
   imports: [
     BrowserModule,

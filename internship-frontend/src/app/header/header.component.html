@@ -20,28 +20,23 @@
          Dashboard
       </a>
 
-      <a routerLink="/profile"
-         routerLinkActive="active"
-         class="nav-link">
-         Profile
-      </a>
-
-      <a routerLink="/contact"
-         routerLinkActive="active"
-         class="nav-link">
-         Contact
-      </a>
-
       <a routerLink="/tickets"
          routerLinkActive="active"
          class="nav-link">
          Tickets
       </a>
+
       <a routerLink="/users"
    routerLinkActive="active"
    class="nav-link">
    Users
 </a>
+
+      <a routerLink="/departments"
+         routerLinkActive="active"
+         class="nav-link">
+         Departments
+      </a>
     </nav>
 
     <div class="header-actions">
@@ -103,12 +98,20 @@
        (click)="closeMenu()">
        Tickets
     </a>
+
     <a routerLink="/users"
    routerLinkActive="active"
    class="mobile-link"
    (click)="closeMenu()">
    Users
 </a>
+
+    <a routerLink="/departments"
+       routerLinkActive="active"
+       class="mobile-link"
+       (click)="closeMenu()">
+       Departments
+    </a>
 
     <button
       type="button"

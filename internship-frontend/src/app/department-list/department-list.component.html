@@ -1,0 +1,72 @@
+<div class="page-layout">
+
+  <app-sidebar></app-sidebar>
+
+  <div class="dept-page">
+
+    <div class="page-header">
+      <div>
+        <h1>🏢 Department List</h1>
+        <p>Employee Helpdesk — Department Management</p>
+      </div>
+
+      <a routerLink="/departments/add" class="btn-add">
+        ➕ Add Department
+      </a>
+    </div>
+
+    <app-notification
+      [type]="notifType"
+      [message]="notifMessage"
+      [show]="showNotification">
+    </app-notification>
+
+    <!-- Loading -->
+    <div class="loading-box" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading departments, please wait...</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error-box" *ngIf="errorMessage && !isLoading">
+      <span>⚠️ {{errorMessage}}</span>
+      <button class="retry-btn" (click)="loadDepartments()">🔄 Retry</button>
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage">
+
+      <div class="table-wrapper">
+        <table class="dept-table">
+
+          <thead>
+            <tr>
+              <th>Department ID</th>
+              <th>Department Name</th>
+              <th>Department Head</th>
+              <th>No. of Employees</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr *ngFor="let dept of departments">
+              <td class="dept-id">{{dept.id}}</td>
+              <td class="dept-name">{{dept.name}}</td>
+              <td>{{dept.head || 'Not Assigned'}}</td>
+              <td class="emp-count">{{dept.employeeCount}}</td>
+            </tr>
+
+            <tr *ngIf="departments.length===0">
+              <td colspan="4" class="no-results">No departments found</td>
+            </tr>
+
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
