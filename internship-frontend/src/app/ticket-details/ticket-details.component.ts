@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TicketService } from '../services/ticket.service';
+import { CommentService } from '../services/comment.service';
 import { Ticket } from '../models/ticket';
+import { Comment } from '../models/comment';
 
 @Component({
   selector: 'app-ticket-details',
@@ -23,14 +26,28 @@ export class TicketDetailsComponent implements OnInit {
   selectedTicketId: string = '';
   selectedTicketAssignedToId: string = '';
 
+  // ===== COMMENTS =====
+  comments: Comment[] = [];
+  isLoadingComments = true;
+  commentForm: FormGroup;
+  submittedComment = false;
+  isSubmittingComment = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private ticketService: TicketService
-  ) {}
+    private ticketService: TicketService,
+    private commentService: CommentService,
+    private fb: FormBuilder
+  ) {
+    this.commentForm = this.fb.group({
+  comment: ['', [Validators.required, Validators.minLength(2)]]   // 1 se 2 kiya
+});
+  }
 
   ngOnInit() {
     this.loadTicket();
+    this.loadComments();
   }
 
   loadTicket() {
@@ -52,6 +69,16 @@ export class TicketDetailsComponent implements OnInit {
     });
   }
 
+  showNotif(type: 'success' | 'error' | 'warning', message: string) {
+    this.notifType = type;
+    this.notifMessage = message;
+    this.showNotification = true;
+
+    setTimeout(() => {
+      this.showNotification = false;
+    }, 3000);
+  }
+
   // ===== ASSIGN TICKET =====
 
   openAssignDialog() {
@@ -67,14 +94,58 @@ export class TicketDetailsComponent implements OnInit {
 
   onAssignResult(result: { success: boolean; message: string }) {
     this.showAssignDialog = false;
-
-    this.notifType = result.success ? 'success' : 'error';
-    this.notifMessage = result.message;
-    this.showNotification = true;
+    this.showNotif(result.success ? 'success' : 'error', result.message);
 
     if (result.success) {
-      this.loadTicket(); // refresh to show updated assigned user
+      this.loadTicket();
     }
+  }
+
+  // ===== COMMENTS =====
+
+  get cf() {
+    return this.commentForm.controls;
+  }
+
+  loadComments() {
+    const id = this.route.snapshot.paramMap.get('id') || '';
+    this.isLoadingComments = true;
+
+    this.commentService.getComments(id).subscribe({
+      next: (res) => {
+        this.comments = res;
+        this.isLoadingComments = false;
+      },
+      error: () => {
+        this.isLoadingComments = false;
+        this.showNotif('error', 'Failed to load comments.');
+      }
+    });
+  }
+
+  onSubmitComment() {
+    this.submittedComment = true;
+
+    if (this.commentForm.invalid) {
+      return;
+    }
+
+    const id = this.route.snapshot.paramMap.get('id') || '';
+    this.isSubmittingComment = true;
+
+    this.commentService.addComment(id, this.commentForm.value.comment).subscribe({
+      next: () => {
+        this.isSubmittingComment = false;
+        this.submittedComment = false;
+        this.commentForm.reset();
+        this.showNotif('success', 'Comment added successfully!');
+        this.loadComments(); // refresh list
+      },
+      error: () => {
+        this.isSubmittingComment = false;
+        this.showNotif('error', 'Failed to add comment. Please try again.');
+      }
+    });
   }
 
   goBack() {

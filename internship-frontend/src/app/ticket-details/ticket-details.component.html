@@ -13,6 +13,12 @@
       <span>⚠️ {{ errorMessage }}</span>
     </div>
 
+    <app-notification
+      [type]="notifType"
+      [message]="notifMessage"
+      [show]="showNotification">
+    </app-notification>
+
     <div class="details-card" *ngIf="ticket">
       <div class="details-header">
         <div>
@@ -49,8 +55,64 @@
         </div>
       </div>
 
-      <a *ngIf="ticket" [routerLink]="['/tickets/edit', ticket.id]" class="edit-link-btn">✏️ Edit This Ticket</a>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a *ngIf="ticket" [routerLink]="['/tickets/edit', ticket.id]" class="edit-link-btn">✏️ Edit This Ticket</a>
+        <button type="button" class="edit-link-btn" style="background:#2980b9; border:none; cursor:pointer;" (click)="openAssignDialog()">👤 Reassign</button>
+      </div>
     </div>
+
+    <!-- ===== COMMENTS SECTION ===== -->
+    <div class="comments-card" *ngIf="ticket">
+      <h3>💬 Comments</h3>
+
+      <div class="comments-loading" *ngIf="isLoadingComments">
+        Loading comments...
+      </div>
+
+      <div class="comment-list" *ngIf="!isLoadingComments">
+
+        <div class="comment-item" *ngFor="let c of comments">
+          <div class="comment-header">
+            <span class="comment-author">{{ c.commentedBy }}</span>
+            <span class="comment-date">{{ c.createdAt | date:'medium' }}</span>
+          </div>
+          <p class="comment-text">{{ c.comment }}</p>
+        </div>
+
+        <div class="no-comments" *ngIf="comments.length === 0">
+          No comments yet. Be the first to comment!
+        </div>
+
+      </div>
+
+      <form class="comment-form" [formGroup]="commentForm" (ngSubmit)="onSubmitComment()">
+        <label>Add a Comment <span style="color:#e74c3c;">*</span></label>
+        <textarea
+          formControlName="comment"
+          placeholder="Write your comment here..."
+          [class.error-input]="submittedComment && cf['comment'].errors">
+        </textarea>
+
+        <div class="comment-error-msg" *ngIf="submittedComment && cf['comment'].errors">
+  <span *ngIf="cf['comment'].errors?.['required']">⚠ Comment is required</span>
+  <span *ngIf="cf['comment'].errors?.['minlength']">⚠ Comment must be at least 2 characters</span>
+</div>
+
+        <button type="submit" class="comment-submit-btn" [disabled]="isSubmittingComment">
+          {{ isSubmittingComment ? '⏳ Posting...' : '💬 Post Comment' }}
+        </button>
+      </form>
+
+    </div>
+
+    <!-- ASSIGN DIALOG -->
+    <app-assign-ticket
+      *ngIf="showAssignDialog"
+      [ticketId]="selectedTicketId"
+      [currentAssignedToId]="selectedTicketAssignedToId"
+      (close)="closeAssignDialog()"
+      (assigned)="onAssignResult($event)">
+    </app-assign-ticket>
 
   </div>
 </div>
