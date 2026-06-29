@@ -94,15 +94,73 @@
         </textarea>
 
         <div class="comment-error-msg" *ngIf="submittedComment && cf['comment'].errors">
-  <span *ngIf="cf['comment'].errors?.['required']">⚠ Comment is required</span>
-  <span *ngIf="cf['comment'].errors?.['minlength']">⚠ Comment must be at least 2 characters</span>
-</div>
+          <span *ngIf="cf['comment'].errors?.['required']">⚠ Comment is required</span>
+          <span *ngIf="cf['comment'].errors?.['minlength']">⚠ Comment must be at least 2 characters</span>
+        </div>
 
         <button type="submit" class="comment-submit-btn" [disabled]="isSubmittingComment">
           {{ isSubmittingComment ? '⏳ Posting...' : '💬 Post Comment' }}
         </button>
       </form>
 
+    </div>
+
+    <!-- ===== ATTACHMENTS SECTION ===== -->
+    <div class="comments-card" *ngIf="ticket">
+      <h3>📎 Attachments</h3>
+
+      <div class="upload-area" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+        <input type="file" multiple (change)="onAttachmentFileSelected($event)" id="attachmentInput" hidden />
+        <label for="attachmentInput" class="edit-link-btn" style="cursor:pointer;">📁 Choose Files</label>
+        <button type="button" class="comment-submit-btn" [disabled]="isUploadingAttachment" (click)="uploadAttachments()">
+          {{ isUploadingAttachment ? '⏳ Uploading...' : '⬆️ Upload' }}
+        </button>
+      </div>
+
+      <!-- Selected files preview — max 150px height scroll -->
+      <div *ngIf="selectedAttachmentFiles.length > 0"
+           style="max-height:150px; overflow-y:auto; border:1px solid #e0e0e0; border-radius:6px; margin-bottom:12px;">
+        <ul style="list-style:none; padding:0; margin:0;">
+          <li *ngFor="let file of selectedAttachmentFiles; let i = index"
+              style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:6px 10px; border-bottom:1px solid #eee; font-size:0.9rem;">
+            <span>{{ file.name }} ({{ formatFileSize(file.size) }})</span>
+            <span style="cursor:pointer; color:#e74c3c; margin-left:10px;" (click)="removeSelectedAttachmentFile(i)">✕</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="comments-loading" *ngIf="isLoadingAttachments">
+        Loading attachments...
+      </div>
+
+      <!-- Uploaded attachments table — max 300px height scroll -->
+      <div *ngIf="!isLoadingAttachments"
+           style="max-height:150px; overflow-y:auto; overflow-x:auto; border:1px solid #e0e0e0; border-radius:6px;">
+        <table style="width:100%; border-collapse:collapse; min-width:480px;"
+               *ngIf="attachments.length > 0; else noAttachmentsBlock">
+          <thead style="position:sticky; top:0; background:#fff; z-index:1;">
+            <tr>
+              <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">File Name</th>
+              <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">File Size</th>
+              <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Upload Date</th>
+              <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let att of attachments">
+              <td style="padding:8px; border-bottom:1px solid #eee;">{{ att.file_name }}</td>
+              <td style="padding:8px; border-bottom:1px solid #eee;">{{ formatFileSize(att.file_size) }}</td>
+              <td style="padding:8px; border-bottom:1px solid #eee;">{{ att.created_at | date:'medium' }}</td>
+              <td style="padding:8px; border-bottom:1px solid #eee;">
+                <button type="button" class="comment-submit-btn" (click)="downloadAttachment(att)">⬇️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #noAttachmentsBlock>
+          <div class="no-comments">No attachments uploaded yet.</div>
+        </ng-template>
+      </div>
     </div>
 
     <!-- ASSIGN DIALOG -->

@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { TicketService } from '../services/ticket.service';
 import { CommentService } from '../services/comment.service';
 import { Ticket } from '../models/ticket';
 import { Comment } from '../models/comment';
+import { Attachment } from '../models/attachment.model';
 
 @Component({
   selector: 'app-ticket-details',
@@ -33,22 +35,33 @@ export class TicketDetailsComponent implements OnInit {
   submittedComment = false;
   isSubmittingComment = false;
 
+  // ===== ATTACHMENTS =====
+  attachments: Attachment[] = [];
+  selectedAttachmentFiles: File[] = [];
+  isLoadingAttachments = false;
+  isUploadingAttachment = false;
+
+  private attachmentBaseUrl = 'http://localhost:8000/api';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private ticketService: TicketService,
     private commentService: CommentService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private http: HttpClient
   ) {
     this.commentForm = this.fb.group({
-  comment: ['', [Validators.required, Validators.minLength(2)]]   // 1 se 2 kiya
-});
+      comment: ['', [Validators.required, Validators.minLength(2)]]
+    });
   }
 
   ngOnInit() {
     this.loadTicket();
     this.loadComments();
   }
+
+  // ===== TICKET =====
 
   loadTicket() {
     const id = this.route.snapshot.paramMap.get('id') || '';
@@ -60,6 +73,8 @@ export class TicketDetailsComponent implements OnInit {
         this.isLoading = false;
         if (!data) {
           this.errorMessage = 'Ticket not found.';
+        } else {
+          this.loadAttachments();
         }
       },
       error: () => {
@@ -68,6 +83,8 @@ export class TicketDetailsComponent implements OnInit {
       }
     });
   }
+
+  // ===== NOTIFICATION =====
 
   showNotif(type: 'success' | 'error' | 'warning', message: string) {
     this.notifType = type;
@@ -98,7 +115,20 @@ export class TicketDetailsComponent implements OnInit {
 
     if (result.success) {
       this.loadTicket();
+      this.addReassignComment(result.message);
     }
+  }
+
+  private addReassignComment(message: string) {
+    const id = this.route.snapshot.paramMap.get('id') || '';
+    this.commentService.addComment(id, `🔄 ${message}`).subscribe({
+      next: () => {
+        this.loadComments();
+      },
+      error: () => {
+        // silent fail
+      }
+    });
   }
 
   // ===== COMMENTS =====
@@ -139,13 +169,118 @@ export class TicketDetailsComponent implements OnInit {
         this.submittedComment = false;
         this.commentForm.reset();
         this.showNotif('success', 'Comment added successfully!');
-        this.loadComments(); // refresh list
+        this.loadComments();
       },
       error: () => {
         this.isSubmittingComment = false;
         this.showNotif('error', 'Failed to add comment. Please try again.');
       }
     });
+  }
+
+  // ===== ATTACHMENTS =====
+
+  loadAttachments() {
+    if (!this.ticket) return;
+    this.isLoadingAttachments = true;
+
+    this.http.get<{ data: Attachment[] } | Attachment[]>(
+      `${this.attachmentBaseUrl}/tickets/${this.ticket.id}/attachments`
+    ).subscribe({
+      next: (res: any) => {
+        this.attachments = Array.isArray(res) ? res : (res.data ?? []);
+        this.isLoadingAttachments = false;
+      },
+      error: (err) => {
+        this.isLoadingAttachments = false;
+        console.error('❌ Load attachments error:', err.status, err.error);
+        this.showNotif('error', 'Failed to load attachments.');
+      }
+    });
+  }
+
+  onAttachmentFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.selectedAttachmentFiles = Array.from(input.files);
+    }
+  }
+
+  removeSelectedAttachmentFile(index: number) {
+    this.selectedAttachmentFiles.splice(index, 1);
+  }
+
+  uploadAttachments() {
+    if (!this.ticket) return;
+
+    if (!this.selectedAttachmentFiles || this.selectedAttachmentFiles.length === 0) {
+      this.showNotif('warning', 'Please select at least one file to upload.');
+      return;
+    }
+
+    const formData = new FormData();
+    // Laravel StoreAttachmentRequest: 'file' => 'required|file'
+    formData.append('file', this.selectedAttachmentFiles[0], this.selectedAttachmentFiles[0].name);
+
+    this.isUploadingAttachment = true;
+
+    this.http.post(
+      `${this.attachmentBaseUrl}/tickets/${this.ticket.id}/attachments`,
+      formData
+    ).subscribe({
+      next: () => {
+        this.isUploadingAttachment = false;
+        this.selectedAttachmentFiles = [];
+        this.showNotif('success', 'File uploaded successfully!');
+        this.loadAttachments();
+      },
+      error: (err) => {
+        this.isUploadingAttachment = false;
+        console.error('❌ Upload error — status:', err.status);
+        console.error('❌ Upload error — body:', err.error);
+
+        if (err.status === 422) {
+          const validationErrors = err.error?.errors;
+          if (validationErrors) {
+            const firstError = Object.values(validationErrors)[0];
+            const msg = Array.isArray(firstError) ? firstError[0] : String(firstError);
+            this.showNotif('error', `Validation failed: ${msg}`);
+          } else {
+            this.showNotif('error', 'File validation failed. Check file type/size.');
+          }
+        } else if (err.status === 500) {
+          this.showNotif('error', 'Server error. Please check Laravel logs.');
+        } else {
+          this.showNotif('error', 'File upload failed. Please try again.');
+        }
+      }
+    });
+  }
+
+  downloadAttachment(attachment: Attachment) {
+    this.http.get(
+      `${this.attachmentBaseUrl}/attachments/${attachment.id}/download`,
+      { responseType: 'blob' }
+    ).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = attachment.file_name;  // snake_case — Laravel se match
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('❌ Download error:', err.status, err.error);
+        this.showNotif('error', 'Failed to download file.');
+      }
+    });
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
   goBack() {

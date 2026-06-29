@@ -104,6 +104,17 @@
   flex-direction: column;
   gap: 14px;
   margin-bottom: 24px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+/* Optional: scrollbar ko thoda stylish banane ke liye */
+.comment-list::-webkit-scrollbar {
+  width: 6px;
+}
+.comment-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
 }
 
 .comment-item {

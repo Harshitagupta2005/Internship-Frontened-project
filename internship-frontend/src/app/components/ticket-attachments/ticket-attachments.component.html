@@ -1,0 +1,47 @@
+<div class="attachments-section">
+  <h3 class="section-title">Attachments</h3>
+
+  <!-- Upload UI -->
+  <div class="upload-area">
+    <input type="file" multiple (change)="onFileSelected($event)" id="fileInput" hidden />
+    <label for="fileInput" class="btn btn-outline">Choose Files</label>
+    <button class="btn btn-primary" [disabled]="isUploading" (click)="uploadFiles()">
+      {{ isUploading ? 'Uploading...' : 'Upload' }}
+    </button>
+  </div>
+
+  <!-- Selected files preview before upload -->
+  <ul class="selected-files" *ngIf="selectedFiles.length > 0">
+    <li *ngFor="let file of selectedFiles; let i = index">
+      {{ file.name }} ({{ formatFileSize(file.size) }})
+      <span class="remove-icon" (click)="removeSelectedFile(i)">✕</span>
+    </li>
+  </ul>
+
+  <!-- Attachment List -->
+  <div class="attachment-list-wrapper">
+    <table class="attachment-table" *ngIf="attachments.length > 0; else noAttachments">
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>File Size</th>
+          <th>Upload Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let att of attachments">
+          <td>{{ att.fileName }}</td>
+          <td>{{ formatFileSize(att.fileSize) }}</td>
+          <td>{{ att.uploadDate | date: 'dd-MM-yyyy hh:mm a' }}</td>
+          <td>
+            <button class="btn-link" (click)="downloadFile(att)">Download</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #noAttachments>
+      <p class="no-data" *ngIf="!isLoading">No attachments uploaded yet.</p>
+    </ng-template>
+  </div>
+</div>

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';   // 👈 ADD KIYA
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -27,6 +28,7 @@ import { DepartmentListComponent } from './department-list/department-list.compo
 import { AddDepartmentComponent } from './add-department/add-department.component';
 
 
+
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', component: HomeComponent },
@@ -52,10 +54,11 @@ const routes: Routes = [
     ContactComponent, SidebarComponent, TicketListComponent,
     AddTicketComponent, EditTicketComponent, TicketDetailsComponent,
     NotificationComponent, LoginComponent, UserManagementComponent, AddUserComponent, AssignTicketComponent,DepartmentListComponent,
-  AddDepartmentComponent
+  AddDepartmentComponent 
   ],
   imports: [
     BrowserModule,
+    CommonModule,   // 👈 ADD KIYA
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
