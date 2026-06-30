@@ -216,3 +216,31 @@
   .comments-card { padding: 18px; }
   .comment-header { flex-direction: column; align-items: flex-start; }
 }
+/* ===== ATTACHMENTS UPLOAD BUTTONS - EQUAL SIZE ===== */
+/* ===== ATTACHMENTS UPLOAD BUTTONS - EQUAL SIZE & ALIGNED ===== */
+.upload-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.upload-area label,
+.upload-area button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 160px;
+  height: 44px;
+  padding: 0;
+  margin: 0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  box-sizing: border-box;
+  border: none;
+  cursor: pointer;
+  line-height: normal;
+}
