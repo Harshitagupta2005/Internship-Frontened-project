@@ -1,8 +1,16 @@
 <div class="profile-page">
+
+  <app-notification
+    [type]="notifType"
+    [message]="notifMessage"
+    [show]="showNotification">
+  </app-notification>
+
   <div class="page-header">
     <h1>👤 Profile</h1>
     <p>Your internship details</p>
   </div>
+
   <div class="profile-grid">
     <div class="profile-card">
       <div class="avatar">{{ profile.name[0] }}</div>
@@ -15,6 +23,7 @@
         <div class="info-item"><span>📍</span> {{ profile.location }}</div>
       </div>
     </div>
+
     <div class="skills-card">
       <h3>Skills Learned</h3>
       <div class="skills-grid">
@@ -35,4 +44,95 @@
       </div>
     </div>
   </div>
+
+  <!-- ===== NOTIFICATION PREFERENCES ===== -->
+  <div class="notif-prefs-card">
+    <h3>🔔 Notification Preferences</h3>
+    <p class="notif-prefs-subtitle">Choose which events trigger email notifications</p>
+
+    <div class="notif-prefs-loading" *ngIf="isLoadingPrefs">
+      Loading preferences...
+    </div>
+
+    <div class="notif-prefs-list" *ngIf="!isLoadingPrefs">
+
+      <!-- Ticket Created -->
+      <div class="notif-pref-item">
+        <div class="notif-pref-info">
+          <span class="notif-pref-icon">🆕</span>
+          <div>
+            <span class="notif-pref-label">Ticket Created</span>
+            <span class="notif-pref-desc">Get notified when a new ticket is created</span>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox"
+            [checked]="preferences.ticket_created"
+            (change)="onToggle('ticket_created')"
+            [disabled]="isSavingPrefs">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Ticket Assigned -->
+      <div class="notif-pref-item">
+        <div class="notif-pref-info">
+          <span class="notif-pref-icon">👤</span>
+          <div>
+            <span class="notif-pref-label">Ticket Assigned</span>
+            <span class="notif-pref-desc">Get notified when a ticket is assigned to you</span>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox"
+            [checked]="preferences.ticket_assigned"
+            (change)="onToggle('ticket_assigned')"
+            [disabled]="isSavingPrefs">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Status Changed -->
+      <div class="notif-pref-item">
+        <div class="notif-pref-info">
+          <span class="notif-pref-icon">🔄</span>
+          <div>
+            <span class="notif-pref-label">Ticket Status Changed</span>
+            <span class="notif-pref-desc">Get notified when a ticket status is updated</span>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox"
+            [checked]="preferences.status_changed"
+            (change)="onToggle('status_changed')"
+            [disabled]="isSavingPrefs">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Comment Added -->
+      <div class="notif-pref-item">
+        <div class="notif-pref-info">
+          <span class="notif-pref-icon">💬</span>
+          <div>
+            <span class="notif-pref-label">Comment Added</span>
+            <span class="notif-pref-desc">Get notified when a comment is added to your ticket</span>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox"
+            [checked]="preferences.comment_added"
+            (change)="onToggle('comment_added')"
+            [disabled]="isSavingPrefs">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+    </div>
+
+    <div class="notif-saving" *ngIf="isSavingPrefs">
+      ⏳ Saving preferences...
+    </div>
+  </div>
+
 </div>

@@ -7,6 +7,7 @@ import { CommentService } from '../services/comment.service';
 import { Ticket } from '../models/ticket';
 import { Comment } from '../models/comment';
 import { Attachment } from '../models/attachment.model';
+import { Activity } from '../models/activity.model';
 
 @Component({
   selector: 'app-ticket-details',
@@ -40,6 +41,10 @@ export class TicketDetailsComponent implements OnInit {
   selectedAttachmentFiles: File[] = [];
   isLoadingAttachments = false;
   isUploadingAttachment = false;
+
+  // ===== ACTIVITY HISTORY =====
+  activities: Activity[] = [];
+  isLoadingActivities = false;
 
   private attachmentBaseUrl = 'http://localhost:8000/api';
 
@@ -75,6 +80,7 @@ export class TicketDetailsComponent implements OnInit {
           this.errorMessage = 'Ticket not found.';
         } else {
           this.loadAttachments();
+          this.loadActivities();
         }
       },
       error: () => {
@@ -170,6 +176,7 @@ export class TicketDetailsComponent implements OnInit {
         this.commentForm.reset();
         this.showNotif('success', 'Comment added successfully!');
         this.loadComments();
+        this.loadActivities();
       },
       error: () => {
         this.isSubmittingComment = false;
@@ -233,6 +240,7 @@ export class TicketDetailsComponent implements OnInit {
         this.selectedAttachmentFiles = [];
         this.showNotif('success', 'File uploaded successfully!');
         this.loadAttachments();
+        this.loadActivities();   // upload ke baad activity bhi refresh karo
       },
       error: (err) => {
         this.isUploadingAttachment = false;
@@ -281,6 +289,61 @@ export class TicketDetailsComponent implements OnInit {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  // ===== ACTIVITY HISTORY =====
+
+  loadActivities() {
+    if (!this.ticket) return;
+    this.isLoadingActivities = true;
+
+    this.http.get<{ data: any[] } | any[]>(
+      `${this.attachmentBaseUrl}/tickets/${this.ticket.id}/activity-logs`
+    ).subscribe({
+      next: (res: any) => {
+        const list = Array.isArray(res) ? res : (res.data ?? []);
+        this.activities = list
+          .map((item: any): Activity => ({
+            id: item.id,
+            ticket_id: item.ticket_id,
+            activity_type: this.mapActionToType(item.action),
+            description: item.description,
+            performed_by: item.user?.name || 'System',
+            created_at: item.created_at
+          }))
+          .sort((a: Activity, b: Activity) =>
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+        this.isLoadingActivities = false;
+      },
+      error: (err) => {
+        this.isLoadingActivities = false;
+        console.error('❌ Load activities error:', err.status, err.error);
+        this.showNotif('error', 'Failed to load activity history.');
+      }
+    });
+  }
+
+  private mapActionToType(action: string): Activity['activity_type'] {
+    switch (action) {
+      case 'created': return 'Created';
+      case 'assigned': return 'Assigned';
+      case 'status_changed': return 'StatusChanged';
+      case 'comment_added': return 'CommentAdded';
+      case 'attachment_added': return 'AttachmentUploaded';
+      default: return 'Created';
+    }
+  }
+
+  getActivityIcon(type: string): string {
+    switch (type) {
+      case 'Created': return '🆕';
+      case 'Assigned': return '👤';
+      case 'StatusChanged': return '🔄';
+      case 'CommentAdded': return '💬';
+      case 'AttachmentUploaded': return '📎';
+      default: return '🔹';
+    }
   }
 
   goBack() {

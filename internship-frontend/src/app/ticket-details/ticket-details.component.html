@@ -163,6 +163,33 @@
       </div>
     </div>
 
+    <!-- ===== ACTIVITY HISTORY (TIMELINE) ===== -->
+    <div class="comments-card" *ngIf="ticket">
+      <h3>🕒 Activity History</h3>
+
+      <div class="comments-loading" *ngIf="isLoadingActivities">
+        Loading activity history...
+      </div>
+
+      <div class="timeline" *ngIf="!isLoadingActivities"
+     style="max-height:250px; overflow-y:auto; padding-right:6px;">
+        <div class="timeline-item" *ngFor="let act of activities">
+          <div class="timeline-icon">{{ getActivityIcon(act.activity_type) }}</div>
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <span class="timeline-desc">{{ act.description }}</span>
+              <span class="timeline-date">{{ act.created_at | date:'medium' }}</span>
+            </div>
+            <span class="timeline-by">By {{ act.performed_by }}</span>
+          </div>
+        </div>
+
+        <div class="no-comments" *ngIf="activities.length === 0">
+          No activity recorded yet.
+        </div>
+      </div>
+    </div>
+
     <!-- ASSIGN DIALOG -->
     <app-assign-ticket
       *ngIf="showAssignDialog"
