@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';   // 👈 ADD KIYA
+import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -20,31 +20,72 @@ import { TicketDetailsComponent } from './ticket-details/ticket-details.componen
 import { NotificationComponent } from './notification/notification.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard } from './guards/role.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { AddUserComponent } from './add-user/add-user.component';
 import { AssignTicketComponent } from './assign-ticket/assign-ticket.component';
 import { DepartmentListComponent } from './department-list/department-list.component';
 import { AddDepartmentComponent } from './add-department/add-department.component';
-
-
+import { AccessDeniedComponent } from './access-denied/access-denied.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', component: HomeComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'contact', component: ContactComponent, canActivate: [AuthGuard] },
-  { path: 'tickets', component: TicketListComponent, canActivate: [AuthGuard] },
-  { path: 'tickets/add', component: AddTicketComponent, canActivate: [AuthGuard] },
-  { path: 'tickets/edit/:id', component: EditTicketComponent, canActivate: [AuthGuard] },
-  { path: 'tickets/:id', component: TicketDetailsComponent, canActivate: [AuthGuard] },
-  { path: 'users', component: UserManagementComponent, canActivate: [AuthGuard] },
-{ path: 'users/add', component: AddUserComponent, canActivate: [AuthGuard] },
-{ path: 'tickets/assign/:id', component: AssignTicketComponent, canActivate: [AuthGuard] },
-{ path: 'departments', component: DepartmentListComponent, canActivate: [AuthGuard] },
-{ path: 'departments/add', component: AddDepartmentComponent, canActivate: [AuthGuard] },
- { path: '**', redirectTo: '' }
+  { path: 'access-denied', component: AccessDeniedComponent },
+
+  // Admin + Manager + Employee
+  { path: 'dashboard', component: DashboardComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin', 'manager', 'employee'] } },
+
+  { path: 'profile', component: ProfileComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin', 'manager', 'employee'] } },
+
+  { path: 'tickets', component: TicketListComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin', 'manager', 'employee'] } },
+
+  { path: 'tickets/add', component: AddTicketComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin', 'manager'] } },
+
+  { path: 'tickets/edit/:id', component: EditTicketComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin', 'manager'] } },
+
+  { path: 'tickets/:id', component: TicketDetailsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin', 'manager', 'employee'] } },
+
+  // Admin + Manager only
+  { path: 'contact', component: ContactComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin', 'manager'] } },
+
+  { path: 'tickets/assign/:id', component: AssignTicketComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin', 'manager'] } },
+
+  // Admin only
+  { path: 'users', component: UserManagementComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin'] } },
+
+  { path: 'users/add', component: AddUserComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin'] } },
+
+  { path: 'departments', component: DepartmentListComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin'] } },
+
+  { path: 'departments/add', component: AddDepartmentComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin'] } },
+
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
@@ -53,12 +94,13 @@ const routes: Routes = [
     HomeComponent, DashboardComponent, ProfileComponent,
     ContactComponent, SidebarComponent, TicketListComponent,
     AddTicketComponent, EditTicketComponent, TicketDetailsComponent,
-    NotificationComponent, LoginComponent, UserManagementComponent, AddUserComponent, AssignTicketComponent,DepartmentListComponent,
-  AddDepartmentComponent 
+    NotificationComponent, LoginComponent, UserManagementComponent,
+    AddUserComponent, AssignTicketComponent, DepartmentListComponent,
+    AddDepartmentComponent, AccessDeniedComponent
   ],
   imports: [
     BrowserModule,
-    CommonModule,   // 👈 ADD KIYA
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -66,9 +108,10 @@ const routes: Routes = [
   ],
   providers: [
     AuthGuard,
+    RoleGuard,
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,   // 👈 Fix
+      useClass: AuthInterceptor,
       multi: true
     }
   ],

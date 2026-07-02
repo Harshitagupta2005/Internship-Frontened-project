@@ -3,16 +3,47 @@
   <div class="sidebar" [class.open]="isOpen">
     <div class="sidebar-header"><span>📋 Navigation</span></div>
     <nav class="sidebar-nav">
-  <a routerLink="/dashboard" routerLinkActive="active" class="sidebar-link" (click)="isOpen=false"><span class="icon">📊</span> Dashboard</a>
-  <a routerLink="/tickets" routerLinkActive="active" class="sidebar-link" (click)="isOpen=false"><span class="icon">🎫</span> Tickets</a>
-  <a routerLink="/profile" routerLinkActive="active" class="sidebar-link" (click)="isOpen=false"><span class="icon">👤</span> Profile</a>
-  <a routerLink="/contact" routerLinkActive="active" class="sidebar-link" (click)="isOpen=false"><span class="icon">📬</span> Contact</a>
-  <a routerLink="/users" routerLinkActive="active" class="sidebar-link" (click)="isOpen=false"><span class="icon">👥</span> Users</a>
-  <a routerLink="/departments" routerLinkActive="active" class="sidebar-link" (click)="isOpen=false"><span class="icon">🏢</span> Departments</a>
-</nav>
+
+      <!-- Admin + Manager + Employee -->
+      <a routerLink="/dashboard" routerLinkActive="active"
+         class="sidebar-link" (click)="isOpen=false">
+        <span class="icon">📊</span> Dashboard
+      </a>
+
+      <!-- Admin + Manager + Employee -->
+      <a routerLink="/tickets" routerLinkActive="active"
+         class="sidebar-link" (click)="isOpen=false">
+        <span class="icon">🎫</span> Tickets
+      </a>
+
+      <!-- Admin + Manager + Employee -->
+      <a routerLink="/profile" routerLinkActive="active"
+         class="sidebar-link" (click)="isOpen=false">
+        <span class="icon">👤</span> Profile
+      </a>
+
+      <!-- Admin + Manager only -->
+      <a *ngIf="isAdminOrManager()" routerLink="/contact"
+         routerLinkActive="active" class="sidebar-link" (click)="isOpen=false">
+        <span class="icon">📬</span> Contact
+      </a>
+
+      <!-- Admin only -->
+      <a *ngIf="isAdmin()" routerLink="/users"
+         routerLinkActive="active" class="sidebar-link" (click)="isOpen=false">
+        <span class="icon">👥</span> Users
+      </a>
+
+      <!-- Admin only -->
+      <a *ngIf="isAdmin()" routerLink="/departments"
+         routerLinkActive="active" class="sidebar-link" (click)="isOpen=false">
+        <span class="icon">🏢</span> Departments
+      </a>
+
+    </nav>
     <div class="sidebar-footer">
-      <p>Harshita Gupta</p>
-      <span>Frontend Intern</span>
+      <p>{{ userName }}</p>
+      <span>{{ userRoleLabel }}</span>
     </div>
   </div>
   <div class="overlay" [class.show]="isOpen" (click)="isOpen=false"></div>

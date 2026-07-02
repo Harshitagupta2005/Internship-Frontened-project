@@ -15,15 +15,15 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   login(email: string, password: string): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/login`, { email, password }).pipe(
-    tap(response => {
-      if (response.access_token) {          // 👈 token se access_token
-        localStorage.setItem(this.tokenKey, response.access_token);  // 👈 yahan bhi
-        localStorage.setItem(this.userKey, JSON.stringify(response.user));
-      }
-    })
-  );
-}
+    return this.http.post<any>(`${this.apiUrl}/login`, { email, password }).pipe(
+      tap(response => {
+        if (response.access_token) {
+          localStorage.setItem(this.tokenKey, response.access_token);
+          localStorage.setItem(this.userKey, JSON.stringify(response.user));
+        }
+      })
+    );
+  }
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
@@ -42,5 +42,16 @@ export class AuthService {
   getUser(): any {
     const user = localStorage.getItem(this.userKey);
     return user ? JSON.parse(user) : null;
+  }
+
+  // ===== ROLE BASED ACCESS =====
+  getUserRole(): string {
+    const user = this.getUser();
+    return user?.role || 'employee';
+  }
+
+  hasRole(roles: string[]): boolean {
+    const userRole = this.getUserRole();
+    return roles.includes(userRole);
   }
 }

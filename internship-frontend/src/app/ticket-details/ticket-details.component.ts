@@ -102,6 +102,17 @@ export class TicketDetailsComponent implements OnInit {
     }, 3000);
   }
 
+  // ===== EMAIL NOTIFICATION MESSAGE HELPER =====
+  private buildEmailStatusMessage(baseMessage: string, emailSent: boolean | undefined): string {
+    if (emailSent === true) {
+      return `${baseMessage} Email notification sent.`;
+    } else if (emailSent === false) {
+      return `${baseMessage} Email notification could not be sent.`;
+    }
+    // backend abhi field nahi bhej raha — sirf base message dikhao
+    return baseMessage;
+  }
+
   // ===== ASSIGN TICKET =====
 
   openAssignDialog() {
@@ -115,9 +126,14 @@ export class TicketDetailsComponent implements OnInit {
     this.showAssignDialog = false;
   }
 
-  onAssignResult(result: { success: boolean; message: string }) {
+  onAssignResult(result: { success: boolean; message: string; email_notification_sent?: boolean }) {
     this.showAssignDialog = false;
-    this.showNotif(result.success ? 'success' : 'error', result.message);
+
+    const finalMessage = result.success
+      ? this.buildEmailStatusMessage(result.message, result.email_notification_sent)
+      : result.message;
+
+    this.showNotif(result.success ? 'success' : 'error', finalMessage);
 
     if (result.success) {
       this.loadTicket();
@@ -170,11 +186,17 @@ export class TicketDetailsComponent implements OnInit {
     this.isSubmittingComment = true;
 
     this.commentService.addComment(id, this.commentForm.value.comment).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isSubmittingComment = false;
         this.submittedComment = false;
         this.commentForm.reset();
-        this.showNotif('success', 'Comment added successfully!');
+
+        const finalMessage = this.buildEmailStatusMessage(
+          'Comment added successfully!',
+          res?.email_notification_sent
+        );
+        this.showNotif('success', finalMessage);
+
         this.loadComments();
         this.loadActivities();
       },

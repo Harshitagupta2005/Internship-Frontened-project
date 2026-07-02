@@ -14,7 +14,7 @@ export class AssignTicketComponent implements OnInit {
   @Input() currentAssignedToId: string = '';
 
   @Output() close = new EventEmitter<void>();
-  @Output() assigned = new EventEmitter<{ success: boolean; message: string }>();
+  @Output() assigned = new EventEmitter<{ success: boolean; message: string; email_notification_sent?: boolean }>();
 
   users: User[] = [];
   selectedUserId: string = '';
@@ -46,29 +46,31 @@ export class AssignTicketComponent implements OnInit {
   }
 
   onAssign() {
-  if (!this.selectedUserId) {
-    return;
-  }
-
-  this.isSaving = true;
-
-  this.ticketService.assignTicket(this.ticketId, this.selectedUserId).subscribe({
-    next: () => {
-      this.isSaving = false;
-      this.assigned.emit({
-        success: true,
-        message: 'Ticket assigned successfully!'
-      });
-    },
-    error: () => {
-      this.isSaving = false;
-      this.assigned.emit({
-        success: false,
-        message: 'Failed to assign ticket.'
-      });
+    if (!this.selectedUserId) {
+      return;
     }
-  });
-}
+
+    this.isSaving = true;
+
+    this.ticketService.assignTicket(this.ticketId, this.selectedUserId).subscribe({
+      next: (res: any) => {
+        this.isSaving = false;
+        this.assigned.emit({
+          success: true,
+          message: 'Ticket assigned successfully!',
+          email_notification_sent: res?.email_notification_sent
+        });
+      },
+      error: () => {
+        this.isSaving = false;
+        this.assigned.emit({
+          success: false,
+          message: 'Failed to assign ticket.',
+          email_notification_sent: undefined
+        });
+      }
+    });
+  }
 
   onCancel() {
     this.close.emit();
