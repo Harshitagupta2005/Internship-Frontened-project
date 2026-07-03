@@ -15,6 +15,48 @@
       </div>
     </div>
 
+    <!-- Charts Section -->
+    <div class="section-title">📈 Analytics</div>
+    <div class="charts-grid">
+      <!-- Pie Chart -->
+      <div class="chart-card">
+        <canvas #pieCanvas></canvas>
+      </div>
+      <!-- Bar Chart -->
+      <div class="chart-card">
+        <canvas #barCanvas></canvas>
+      </div>
+    </div>
+
+    <!-- Recent Tickets -->
+    <div class="section-title">🕐 Recent Tickets</div>
+    <div class="recent-card">
+      <div class="loading-text" *ngIf="isLoadingTickets">Loading recent tickets...</div>
+      <table class="recent-table" *ngIf="!isLoadingTickets && recentTickets.length > 0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of recentTickets">
+            <td>{{ t.id }}</td>
+            <td class="ticket-title">{{ t.title }}</td>
+            <td><span class="badge" [ngClass]="getStatusClass(t.status)">{{ t.status }}</span></td>
+            <td><span class="badge" [ngClass]="getPriorityClass(t.priority)">{{ t.priority }}</span></td>
+            <td>{{ t.createdDate }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="no-data" *ngIf="!isLoadingTickets && recentTickets.length === 0">
+        No tickets found.
+      </div>
+    </div>
+
     <!-- User Profile Card -->
     <div class="section-title">👤 User Profile</div>
     <div class="profile-card">
@@ -26,5 +68,6 @@
         <div class="info-row"><span class="info-label">💼 Designation</span><span>Frontend Intern</span></div>
       </div>
     </div>
+
   </div>
 </div>
