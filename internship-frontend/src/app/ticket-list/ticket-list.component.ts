@@ -28,9 +28,9 @@ export class TicketListComponent implements OnInit {
 
   // STATUS OPTIONS
   statusOptions = [
-    { value: 'open', label: 'Open' },
-    { value: 'in_progress', label: 'In Progress' },
-    { value: 'closed', label: 'Closed' }
+    { value: 'open', label: 'open' },
+    { value: 'in_progress', label: 'in_progress' },
+    { value: 'closed', label: 'closed' }
   ];
 
   // ASSIGN DIALOG
