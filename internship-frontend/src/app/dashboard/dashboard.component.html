@@ -1,6 +1,7 @@
 <div class="page-layout">
   <app-sidebar></app-sidebar>
   <div class="dashboard">
+
     <div class="page-header">
       <h1>📊 Dashboard</h1>
       <p>Welcome back, Harshita!</p>
@@ -15,45 +16,90 @@
       </div>
     </div>
 
+    <div class="loading-text" *ngIf="isLoading">⏳ Loading stats...</div>
+
     <!-- Charts Section -->
     <div class="section-title">📈 Analytics</div>
-    <div class="charts-grid">
+    <div class="charts-grid" *ngIf="statsLoaded">
+
       <!-- Pie Chart -->
       <div class="chart-card">
-        <canvas #pieCanvas></canvas>
+        <h3 class="chart-title">🍕 Ticket Status Distribution</h3>
+        <div class="chart-container">
+          <canvas #pieCanvas></canvas>
+        </div>
       </div>
+
       <!-- Bar Chart -->
       <div class="chart-card">
-        <canvas #barCanvas></canvas>
+        <h3 class="chart-title">🏢 Tickets by Department</h3>
+        <div class="chart-container">
+          <canvas #barCanvas></canvas>
+        </div>
+        <!-- Custom HTML Legend -->
+        <div class="custom-legend">
+          <div class="legend-item" *ngFor="let dept of deptLabels; let i = index">
+            <span class="legend-color" [style.background]="getDeptColor(i)"></span>
+            <span class="legend-name" [title]="dept">{{ dept }}</span>
+          </div>
+        </div>
       </div>
+
     </div>
 
     <!-- Recent Tickets -->
     <div class="section-title">🕐 Recent Tickets</div>
     <div class="recent-card">
-      <div class="loading-text" *ngIf="isLoadingTickets">Loading recent tickets...</div>
-      <table class="recent-table" *ngIf="!isLoadingTickets && recentTickets.length > 0">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let t of recentTickets">
-            <td>{{ t.id }}</td>
-            <td class="ticket-title">{{ t.title }}</td>
-            <td><span class="badge" [ngClass]="getStatusClass(t.status)">{{ t.status }}</span></td>
-            <td><span class="badge" [ngClass]="getPriorityClass(t.priority)">{{ t.priority }}</span></td>
-            <td>{{ t.createdDate }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="no-data" *ngIf="!isLoadingTickets && recentTickets.length === 0">
-        No tickets found.
+      <div class="loading-text" *ngIf="isLoadingTickets">⏳ Loading recent tickets...</div>
+
+      <div class="recent-scroll-wrapper"
+           *ngIf="!isLoadingTickets && recentTickets.length > 0">
+        <table class="recent-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of paginatedRecentTickets">
+              <td>{{ t.id }}</td>
+              <td class="ticket-title">
+                <a [routerLink]="['/tickets', t.id]">{{ t.title }}</a>
+              </td>
+              <td><span class="badge" [ngClass]="getStatusClass(t.status)">{{ t.status }}</span></td>
+              <td><span class="badge" [ngClass]="getPriorityClass(t.priority)">{{ t.priority }}</span></td>
+              <td>{{ t.createdDate }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="recent-pagination"
+           *ngIf="!isLoadingTickets && recentTotalPages > 1">
+        <button class="page-btn"
+          (click)="changeRecentPage(recentCurrentPage - 1)"
+          [disabled]="recentCurrentPage === 1">← Prev</button>
+
+        <button class="page-num-btn"
+          *ngFor="let page of recentPageNumbers"
+          (click)="changeRecentPage(page)"
+          [class.active-page]="recentCurrentPage === page">
+          {{ page }}
+        </button>
+
+        <button class="page-btn"
+          (click)="changeRecentPage(recentCurrentPage + 1)"
+          [disabled]="recentCurrentPage === recentTotalPages">Next →</button>
+      </div>
+
+      <div class="no-data"
+           *ngIf="!isLoadingTickets && recentTickets.length === 0">
+        No recent tickets found.
       </div>
     </div>
 

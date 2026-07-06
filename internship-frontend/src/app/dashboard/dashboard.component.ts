@@ -19,19 +19,29 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private barChart: Chart | null = null;
 
   cards = [
-    { label: 'Total Tickets',       value: '...', icon: '🎫', color: '#1D9E75' },
-    { label: 'Open Tickets',         value: '...', icon: '📂', color: '#e67e22' },
-    { label: 'In Progress',          value: '...', icon: '⏳', color: '#3498db' },
-    { label: 'Closed Tickets',       value: '...', icon: '✅', color: '#95a5a6' },
+    { label: 'Total Tickets',  value: '...', icon: '🎫', color: '#1D9E75' },
+    { label: 'Open Tickets',   value: '...', icon: '📂', color: '#e67e22' },
+    { label: 'In Progress',    value: '...', icon: '⏳', color: '#3498db' },
+    { label: 'Closed Tickets', value: '...', icon: '✅', color: '#95a5a6' },
   ];
 
   recentTickets: any[] = [];
   isLoading = true;
   isLoadingTickets = true;
   statsLoaded = false;
+  deptLabels: string[] = [];
+
+  recentCurrentPage = 1;
+  recentItemsPerPage = 5;
 
   private stats: any = null;
   private apiUrl = 'http://127.0.0.1:8000/api';
+
+  private readonly colors = [
+    '#1D9E75', '#3498db', '#e67e22', '#9b59b6',
+    '#e74c3c', '#2ecc71', '#f39c12', '#1abc9c',
+    '#d35400', '#8e44ad', '#2980b9', '#27ae60'
+  ];
 
   constructor(
     private ticketService: TicketService,
@@ -43,13 +53,34 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadRecentTickets();
   }
 
-  ngAfterViewInit() {
-    // Charts will be rendered after stats load
-  }
+  ngAfterViewInit() {}
 
   ngOnDestroy() {
     if (this.pieChart) this.pieChart.destroy();
     if (this.barChart) this.barChart.destroy();
+  }
+
+  get paginatedRecentTickets(): any[] {
+    const start = (this.recentCurrentPage - 1) * this.recentItemsPerPage;
+    return this.recentTickets.slice(start, start + this.recentItemsPerPage);
+  }
+
+  get recentTotalPages(): number {
+    return Math.ceil(this.recentTickets.length / this.recentItemsPerPage);
+  }
+
+  get recentPageNumbers(): number[] {
+    return Array.from({ length: this.recentTotalPages }, (_, i) => i + 1);
+  }
+
+  changeRecentPage(page: number) {
+    if (page >= 1 && page <= this.recentTotalPages) {
+      this.recentCurrentPage = page;
+    }
+  }
+
+  getDeptColor(i: number): string {
+    return this.colors[i % this.colors.length];
   }
 
   loadStats() {
@@ -75,7 +106,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   loadRecentTickets() {
     this.ticketService.getRecentTickets().subscribe({
-      next: (tickets) => {
+      next: (tickets: any[]) => {
         this.recentTickets = tickets;
         this.isLoadingTickets = false;
       },
@@ -89,10 +120,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   renderChartsWithFallback() {
-    this.renderPieChartWithData(
-      ['Open', 'In Progress', 'Closed'],
-      [0, 0, 0]
-    );
+    this.renderPieChartWithData(['Open', 'In Progress', 'Closed'], [0, 0, 0]);
     this.renderBarChartWithData([], []);
   }
 
@@ -113,9 +141,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pieChart = new Chart(this.pieCanvas.nativeElement, {
       type: 'pie',
       data: {
-        labels: labels,
+        labels,
         datasets: [{
-          data: data,
+          data,
           backgroundColor: ['#e67e22', '#3498db', '#95a5a6'],
           borderColor: ['#fff', '#fff', '#fff'],
           borderWidth: 2
@@ -123,42 +151,51 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'bottom' },
-          title: {
-            display: true,
-            text: 'Ticket Distribution by Status',
-            font: { size: 14, weight: 'bold' },
-            color: '#0a3d2b'
-          }
+          legend: {
+            position: 'bottom' as const,
+            align: 'center',
+            labels: {
+              font: { size: 13 },
+              color: '#333',
+              padding: 16,
+              boxWidth: 20
+            }
+          },
+          title: { display: false }
         }
       }
     });
   }
 
   renderBarChart() {
-    // Try to get department data from stats
-    if (this.stats?.by_department && this.stats.by_department.length > 0) {
-      const labels = this.stats.by_department.map((d: any) => d.name || d.department || 'Unknown');
-      const data   = this.stats.by_department.map((d: any) => d.count || d.total || 0);
-      this.renderBarChartWithData(labels, data);
-    } else {
-      // Fallback: load from departments API
-      this.http.get<any>(`${this.apiUrl}/departments`).subscribe({
-        next: (res) => {
-          const depts = res.data || res || [];
-          const labels = depts.map((d: any) => d.name || 'Unknown');
-          const data   = depts.map((d: any) => d.tickets_count || 0);
-          this.renderBarChartWithData(labels, data);
-        },
-        error: () => this.renderBarChartWithData([], [])
-      });
-    }
+    this.http.get<any>(`${this.apiUrl}/departments`).subscribe({
+      next: (res) => {
+        const depts = res.data || res || [];
+        const seen = new Set<string>();
+        const unique = depts.filter((d: any) => {
+          const name = d.name || 'Unknown';
+          if (seen.has(name)) return false;
+          seen.add(name);
+          return true;
+        });
+        const labels = unique.map((d: any) => d.name || 'Unknown');
+        const data   = unique.map((d: any) => d.tickets_count || 0);
+        this.deptLabels = labels;
+        this.renderBarChartWithData(labels, data);
+      },
+      error: () => this.renderBarChartWithData([], [])
+    });
   }
 
   renderBarChartWithData(labels: string[], data: number[]) {
     if (!this.barCanvas) return;
     if (this.barChart) this.barChart.destroy();
+
+    const bgColors = labels.map((_: any, i: number) =>
+      this.colors[i % this.colors.length]
+    );
 
     this.barChart = new Chart(this.barCanvas.nativeElement, {
       type: 'bar',
@@ -167,27 +204,36 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         datasets: [{
           label: 'Tickets',
           data: data.length > 0 ? data : [0],
-          backgroundColor: '#1D9E75',
-          borderColor: '#17865f',
-          borderWidth: 1,
-          borderRadius: 6
+          backgroundColor: bgColors,
+          borderColor: '#fff',
+          borderWidth: 2,
+          borderRadius: 6,
+          borderSkipped: false
         }]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          title: {
-            display: true,
-            text: 'Tickets by Department',
-            font: { size: 14, weight: 'bold' },
-            color: '#0a3d2b'
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.parsed.y} Tickets`
+            }
           }
         },
         scales: {
+          x: { display: false },
           y: {
             beginAtZero: true,
-            ticks: { stepSize: 1 }
+            ticks: { stepSize: 1, font: { size: 12 }, color: '#555' },
+            grid: { color: 'rgba(0,0,0,0.06)' },
+            title: {
+              display: true,
+              text: 'Tickets',
+              font: { size: 11 },
+              color: '#555'
+            }
           }
         }
       }

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { TicketService } from '../services/ticket.service';
 import { Ticket } from '../models/ticket';
 
-
 @Component({
   selector: 'app-ticket-list',
   templateUrl: './ticket-list.component.html',
@@ -19,9 +18,13 @@ export class TicketListComponent implements OnInit {
   notifType: 'success' | 'error' | 'warning' = 'success';
   notifMessage = '';
 
-  // FRONTEND PAGINATION
+  // PAGINATION
   currentPage = 1;
   itemsPerPage = 10;
+
+  // SORTING
+  sortColumn: string = 'id';
+  sortDirection: 'asc' | 'desc' = 'desc';
 
   // STATUS OPTIONS
   statusOptions = [
@@ -30,64 +33,88 @@ export class TicketListComponent implements OnInit {
     { value: 'closed', label: 'Closed' }
   ];
 
-  // ASSIGN DIALOG STATE
+  // ASSIGN DIALOG
   showAssignDialog = false;
   selectedTicketId: string = '';
   selectedTicketAssignedToId: string = '';
 
   constructor(private ticketService: TicketService) {}
 
-  ngOnInit(){
+  ngOnInit() {
     this.loadTickets();
   }
 
-  loadTickets(){
+  loadTickets() {
     this.isLoading = true;
-
     this.ticketService.getTickets().subscribe({
-      next:(res:any)=>{
+      next: (res: any) => {
         this.tickets = res.data || res;
         this.isLoading = false;
       },
-      error:()=>{
+      error: () => {
         this.errorMessage = 'Failed to load tickets. Please try again.';
         this.isLoading = false;
       }
     });
   }
 
-  // ===== NOTIFICATION HELPER (auto-hide after 3 seconds) =====
+  // ===== SORTING =====
+  sortBy(column: string) {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.currentPage = 1;
+  }
 
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) return '↕';
+    return this.sortDirection === 'asc' ? '↑' : '↓';
+  }
+
+  get sortedTickets(): Ticket[] {
+    return [...this.filteredTickets].sort((a: any, b: any) => {
+      let valA = a[this.sortColumn] ?? '';
+      let valB = b[this.sortColumn] ?? '';
+      if (typeof valA === 'string') valA = valA.toLowerCase();
+      if (typeof valB === 'string') valB = valB.toLowerCase();
+      if (valA < valB) return this.sortDirection === 'asc' ? -1 : 1;
+      if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  // ===== NOTIFICATION =====
   showNotif(type: 'success' | 'error' | 'warning', message: string) {
     this.notifType = type;
     this.notifMessage = message;
     this.showNotification = true;
-
-    setTimeout(() => {
-      this.showNotification = false;
-    }, 3000);
+    setTimeout(() => { this.showNotification = false; }, 3000);
   }
 
-  deleteTicket(ticket:Ticket){
+  // ===== DELETE =====
+  deleteTicket(ticket: Ticket) {
     const confirmDelete = window.confirm(
       `Are you sure you want to delete ticket "${ticket.title}"?`
     );
-
-    if(!confirmDelete) return;
-
+    if (!confirmDelete) return;
     this.ticketService.deleteTicket(String(ticket.id)).subscribe({
-      next:()=>{
-        this.tickets = this.tickets.filter(t=>t.id !== ticket.id);
+      next: () => {
+        this.tickets = this.tickets.filter(t => t.id !== ticket.id);
+        if (this.currentPage > this.totalPages) {
+          this.currentPage = this.totalPages;
+        }
         this.showNotif('success', 'Ticket deleted successfully!');
       },
-      error:()=>{
+      error: () => {
         this.showNotif('error', 'Failed to delete ticket');
       }
     });
   }
 
-  // ===== ASSIGN TICKET FEATURE =====
-
+  // ===== ASSIGN =====
   openAssignDialog(ticket: Ticket) {
     this.selectedTicketId = String(ticket.id);
     this.selectedTicketAssignedToId = ticket.assignedToId || '';
@@ -101,22 +128,15 @@ export class TicketListComponent implements OnInit {
   onAssignResult(result: { success: boolean; message: string }) {
     this.showAssignDialog = false;
     this.showNotif(result.success ? 'success' : 'error', result.message);
-
-    if (result.success) {
-      this.loadTickets();
-    }
+    if (result.success) { this.loadTickets(); }
   }
 
-  // ===== STATUS CHANGE FEATURE =====
-
+  // ===== STATUS CHANGE =====
   onStatusChange(ticket: Ticket, newStatus: string) {
     const oldStatus = ticket.status;
     ticket.status = newStatus;
-
     this.ticketService.updateStatus(String(ticket.id), newStatus).subscribe({
-      next: () => {
-        this.showNotif('success', `Status updated to "${newStatus}"`);
-      },
+      next: () => { this.showNotif('success', `Status updated to "${newStatus}"`); },
       error: () => {
         ticket.status = oldStatus;
         this.showNotif('error', 'Failed to update status.');
@@ -129,28 +149,32 @@ export class TicketListComponent implements OnInit {
     return 'badge-' + normalized;
   }
 
-  // ===== EXISTING GETTERS/PAGINATION (unchanged) =====
-
-  get filteredTickets():Ticket[]{
-    if(!this.searchText){
-      return this.tickets;
-    }
-    return this.tickets.filter(t=>
-      t.title.toLowerCase().includes(this.searchText.toLowerCase())
+  // ===== SEARCH =====
+  get filteredTickets(): Ticket[] {
+    if (!this.searchText) return this.tickets;
+    return this.tickets.filter(t =>
+      t.title.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      (t.status || '').toLowerCase().includes(this.searchText.toLowerCase()) ||
+      (t.assignedTo || '').toLowerCase().includes(this.searchText.toLowerCase())
     );
   }
 
-  get paginatedTickets():Ticket[]{
-    const start = (this.currentPage-1) * this.itemsPerPage;
-    return this.filteredTickets.slice(start, start + this.itemsPerPage);
+  // ===== PAGINATION =====
+  get paginatedTickets(): Ticket[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.sortedTickets.slice(start, start + this.itemsPerPage);
   }
 
-  get totalPages():number{
+  get totalPages(): number {
     return Math.ceil(this.filteredTickets.length / this.itemsPerPage);
   }
 
-  changePage(page:number){
-    if(page >=1 && page <= this.totalPages){
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  changePage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
     }
   }
