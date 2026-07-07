@@ -1,0 +1,45 @@
+<div class="page-layout">
+  <app-sidebar></app-sidebar>
+  <div class="dept-page">
+
+    <div class="page-header">
+      <h1>🏢 Tickets By Department</h1>
+      <p>Visual breakdown of tickets across all departments</p>
+    </div>
+
+    <div class="loading-box" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading department data...</p>
+    </div>
+
+    <div *ngIf="!isLoading">
+      <!-- Bar Chart -->
+      <div class="chart-card">
+        <h3 class="chart-title">📊 Tickets by Department</h3>
+        <div class="chart-container">
+          <canvas #barCanvas></canvas>
+        </div>
+        <!-- Custom Legend -->
+        <div class="custom-legend">
+          <div class="legend-item" *ngFor="let dept of departments; let i = index">
+            <span class="legend-color" [style.background]="getDeptColor(i)"></span>
+            <span class="legend-name" [title]="dept.name">{{ dept.name }}</span>
+            <span class="legend-count">{{ dept.tickets_count || 0 }} tickets</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Department Cards -->
+      <div class="dept-cards-grid">
+        <div class="dept-card" *ngFor="let dept of departments; let i = index"
+             [style.borderTopColor]="getDeptColor(i)">
+          <div class="dept-icon">🏢</div>
+          <div class="dept-name">{{ dept.name }}</div>
+          <div class="dept-count">{{ dept.tickets_count || 0 }}</div>
+          <div class="dept-label">Tickets</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

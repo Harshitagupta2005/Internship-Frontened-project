@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable, throwError, forkJoin, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +26,8 @@ export class TicketService {
             description: t.description,
             status: t.status,
             priority: t.priority,
+            department: t.department?.name || '',
+          department_id: t.department?.id || '',
             assignedTo:
               t.assigned_to?.name
               || t.assignedTo?.name
@@ -51,6 +53,7 @@ export class TicketService {
           description: t.description,
           status: t.status,
           priority: t.priority,
+
           assignedToId: t.assigned_to?.id || '',
           assignedTo: t.assigned_to?.name || 'Unassigned',
           createdDate: t.created_at ? t.created_at.substring(0, 10) : ''
@@ -99,21 +102,50 @@ export class TicketService {
     );
   }
 
-  // DASHBOARD STATS
+  // GET STATS — ab saare pages fetch karke combine karta hai,
+  // isliye backend agar per_page ko limit/ignore kare tab bhi counts sahi aayenge
   getStats(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/tickets?per_page=100`).pipe(
-      map((res: any) => {
-        const tickets = res.data || [];
-        const total = res.meta?.total || tickets.length;
+    return this.http.get<any>(`${this.apiUrl}/tickets?page=1&per_page=100`).pipe(
+      switchMap((firstRes: any) => {
+        const lastPage = firstRes.meta?.last_page || 1;
+
+        // Agar sirf 1 page hi hai to seedha use karo
+        if (lastPage <= 1) {
+          return of([...(firstRes.data || [])]);
+        }
+
+        // Page 2 se lastPage tak baaki requests banao
+        const remainingRequests = [];
+        for (let p = 2; p <= lastPage; p++) {
+          remainingRequests.push(
+            this.http.get<any>(`${this.apiUrl}/tickets?page=${p}&per_page=100`)
+          );
+        }
+
+        return forkJoin(remainingRequests).pipe(
+          map((responses: any[]) => {
+            let allTickets = [...(firstRes.data || [])];
+            responses.forEach((r: any) => {
+              allTickets = allTickets.concat(r.data || []);
+            });
+            return allTickets;
+          })
+        );
+      }),
+      map((tickets: any[]) => {
+        const open = tickets.filter((t: any) =>
+          ['open', 'Open'].includes(t.status)).length;
+        const in_progress = tickets.filter((t: any) =>
+          ['in_progress', 'In Progress', 'in progress',
+           'In_progress', 'InProgress'].includes(t.status)).length;
+        const closed = tickets.filter((t: any) =>
+          ['closed', 'Closed'].includes(t.status)).length;
+
         return {
-          total: total,
-          open: tickets.filter((t: any) =>
-            ['open', 'Open'].includes(t.status)).length,
-          in_progress: tickets.filter((t: any) =>
-            ['in_progress', 'In Progress', 'in progress',
-             'In_progress', 'InProgress'].includes(t.status)).length,
-          closed: tickets.filter((t: any) =>
-            ['closed', 'Closed'].includes(t.status)).length,
+          total: tickets.length,
+          open: open,
+          in_progress: in_progress,
+          closed: closed,
           high_priority: tickets.filter((t: any) =>
             ['high', 'High'].includes(t.priority)).length,
         };
@@ -122,7 +154,7 @@ export class TicketService {
     );
   }
 
-  // RECENT TICKETS (for dashboard)
+  // RECENT TICKETS
   getRecentTickets(): Observable<any[]> {
     return this.http.get<any>(`${this.apiUrl}/tickets?page=1&per_page=5`).pipe(
       map((res: any) => (res.data || []).slice(0, 5).map((t: any) => ({

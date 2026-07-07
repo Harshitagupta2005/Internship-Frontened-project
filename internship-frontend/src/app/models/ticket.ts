@@ -5,6 +5,13 @@ export interface Ticket {
   status: string;
   priority: string;
   assignedTo: string;
-  assignedToId?: string;   // 👈 ye line add karo
+  assignedToId?: string;
   createdDate?: string;
+
+  department?: {
+    id: number;
+    name: string;
+  };
+
+  department_id?: number;
 }

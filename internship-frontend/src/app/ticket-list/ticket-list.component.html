@@ -1,7 +1,5 @@
 <div class="page-layout">
-
   <app-sidebar></app-sidebar>
-
   <div class="ticket-page">
 
     <div class="page-header">
@@ -18,13 +16,11 @@
       [show]="showNotification">
     </app-notification>
 
-    <!-- Loading -->
     <div class="loading-box" *ngIf="isLoading">
       <div class="spinner"></div>
       <p>Loading tickets, please wait...</p>
     </div>
 
-    <!-- Error -->
     <div class="error-box" *ngIf="errorMessage && !isLoading">
       <span>⚠️ {{errorMessage}}</span>
       <button class="retry-btn" (click)="loadTickets()">🔄 Retry</button>
@@ -32,59 +28,60 @@
 
     <div *ngIf="!isLoading && !errorMessage">
 
-      <!-- Search -->
-      <div class="search-bar">
-        <span class="search-icon">🔍</span>
-        <input
-          type="text"
-          [(ngModel)]="searchText"
-          (input)="currentPage=1"
-          placeholder="Search tickets by title, status, assigned to..."
-          class="search-input">
-        <span class="search-count">{{filteredTickets.length}} tickets found</span>
+      <!-- Search + Department Filter -->
+      <div class="filter-bar">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            [(ngModel)]="searchText"
+            (input)="currentPage=1"
+            placeholder="Search by title, status, assigned to..."
+            class="search-input">
+        </div>
+
+        <select class="dept-filter"
+          [(ngModel)]="selectedDepartmentId"
+          (ngModelChange)="onDepartmentFilter()">
+          <option value="">🏢 All Departments</option>
+          <option *ngFor="let d of departments" [value]="d.id">{{ d.name }}</option>
+        </select>
+
+        <span class="search-count">{{ filteredTickets.length }} tickets found</span>
       </div>
 
       <!-- Table -->
       <div class="table-wrapper">
         <table class="ticket-table">
-
           <thead>
             <tr>
               <th>S.No</th>
-
               <th class="sortable" (click)="sortBy('title')">
                 Title <span class="sort-icon">{{getSortIcon('title')}}</span>
               </th>
-
               <th class="sortable" (click)="sortBy('status')">
                 Status <span class="sort-icon">{{getSortIcon('status')}}</span>
               </th>
-
               <th class="sortable" (click)="sortBy('priority')">
                 Priority <span class="sort-icon">{{getSortIcon('priority')}}</span>
               </th>
-
+              <th class="sortable" (click)="sortBy('department')">
+                Department <span class="sort-icon">{{getSortIcon('department')}}</span>
+              </th>
               <th class="sortable" (click)="sortBy('assignedTo')">
                 Assigned To <span class="sort-icon">{{getSortIcon('assignedTo')}}</span>
               </th>
-
               <th>Actions</th>
             </tr>
           </thead>
-
           <tbody>
             <tr *ngFor="let ticket of paginatedTickets; let i=index">
-
-              <td class="ticket-id">
-                {{((currentPage-1)*itemsPerPage)+i+1}}
-              </td>
-
+              <td class="ticket-id">{{ ((currentPage-1)*itemsPerPage)+i+1 }}</td>
               <td class="ticket-title">
                 <a [routerLink]="['/tickets', ticket.id]" class="title-link">
-                  {{ticket.title}}
+                  {{ ticket.title }}
                 </a>
               </td>
-
               <td>
                 <select
                   [(ngModel)]="ticket.status"
@@ -96,50 +93,40 @@
                   {{ticket.status}}
                 </span>
               </td>
-
-              <td>
-                <span class="badge">{{ticket.priority}}</span>
+              <td><span class="badge">{{ ticket.priority }}</span></td>
+              <td class="dept-cell">
+               {{ ticket.department }}
               </td>
-
-              <td class="assigned">{{ticket.assignedTo}}</td>
-
+              <td class="assigned">{{ ticket.assignedTo }}</td>
               <td class="actions-col">
                 <a [routerLink]="['/tickets/edit', ticket.id]" class="btn-edit" title="Edit">✏️</a>
                 <button class="btn-assign-action" (click)="openAssignDialog(ticket)" title="Assign">👤</button>
                 <button class="btn-delete" (click)="deleteTicket(ticket)" title="Delete">🗑️</button>
               </td>
-
             </tr>
-
             <tr *ngIf="paginatedTickets.length === 0">
-              <td colspan="6" class="no-results">No tickets found</td>
+              <td colspan="7" class="no-results">No tickets found</td>
             </tr>
           </tbody>
-
         </table>
       </div>
 
       <!-- Pagination -->
       <div class="pagination" *ngIf="totalPages > 1">
         <button class="page-btn" (click)="changePage(currentPage-1)" [disabled]="currentPage===1">← Prev</button>
-
-        <button
-          class="page-num-btn"
+        <button class="page-num-btn"
           *ngFor="let page of pageNumbers"
           (click)="changePage(page)"
           [class.active-page]="currentPage === page">
-          {{page}}
+          {{ page }}
         </button>
-
         <button class="page-btn" (click)="changePage(currentPage+1)" [disabled]="currentPage===totalPages">Next →</button>
       </div>
 
-      <div class="page-info">Page {{currentPage}} of {{totalPages}}</div>
-
+      <div class="page-info">Page {{ currentPage }} of {{ totalPages }}</div>
     </div>
   </div>
 
-  <!-- ASSIGN DIALOG -->
   <app-assign-ticket
     *ngIf="showAssignDialog"
     [ticketId]="selectedTicketId"
@@ -147,5 +134,4 @@
     (close)="closeAssignDialog()"
     (assigned)="onAssignResult($event)">
   </app-assign-ticket>
-
 </div>

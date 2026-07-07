@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { TicketService } from '../services/ticket.service';
 import { Ticket } from '../models/ticket';
 
@@ -10,7 +11,9 @@ import { Ticket } from '../models/ticket';
 export class TicketListComponent implements OnInit {
 
   tickets: Ticket[] = [];
+  departments: any[] = [];
   searchText = '';
+  selectedDepartmentId = '';
   isLoading = true;
   errorMessage = '';
 
@@ -18,47 +21,74 @@ export class TicketListComponent implements OnInit {
   notifType: 'success' | 'error' | 'warning' = 'success';
   notifMessage = '';
 
-  // PAGINATION
   currentPage = 1;
   itemsPerPage = 10;
+  totalPages = 1;
+  totalTickets = 0;
 
-  // SORTING
   sortColumn: string = 'id';
   sortDirection: 'asc' | 'desc' = 'desc';
 
-  // STATUS OPTIONS
   statusOptions = [
     { value: 'open', label: 'open' },
     { value: 'in_progress', label: 'in_progress' },
     { value: 'closed', label: 'closed' }
   ];
 
-  // ASSIGN DIALOG
   showAssignDialog = false;
   selectedTicketId: string = '';
   selectedTicketAssignedToId: string = '';
 
-  constructor(private ticketService: TicketService) {}
+  private apiUrl = 'http://127.0.0.1:8000/api';
+
+  constructor(
+    private ticketService: TicketService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
     this.loadTickets();
+    this.loadDepartments();
   }
 
-  loadTickets() {
-    this.isLoading = true;
-    this.ticketService.getTickets().subscribe({
-      next: (res: any) => {
-        this.tickets = res.data || res;
-        this.isLoading = false;
+    loadTickets() {
+  this.isLoading = true;
+  this.ticketService.getTickets(this.currentPage).subscribe({
+    next: (res: any) => {
+  this.tickets = res.data || [];
+  this.totalPages = res.meta?.last_page || 1;
+  this.currentPage = res.meta?.current_page || 1;
+  this.totalTickets = res.meta?.total || 0;
+  this.isLoading = false;
+},
+    error: () => {
+      this.errorMessage = 'Failed to load tickets. Please try again.';
+      this.isLoading = false;
+    }
+  });
+}
+
+
+  loadDepartments() {
+    this.http.get<any>(`${this.apiUrl}/departments`).subscribe({
+      next: (res) => {
+        const depts = res.data || res || [];
+        // Deduplicate
+        const seen = new Set<string>();
+        this.departments = depts.filter((d: any) => {
+          if (seen.has(d.name)) return false;
+          seen.add(d.name);
+          return true;
+        });
       },
-      error: () => {
-        this.errorMessage = 'Failed to load tickets. Please try again.';
-        this.isLoading = false;
-      }
+      error: () => {}
     });
   }
 
-  // ===== SORTING =====
+  onDepartmentFilter() {
+    this.currentPage = 1;
+  }
+
   sortBy(column: string) {
     if (this.sortColumn === column) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -74,6 +104,30 @@ export class TicketListComponent implements OnInit {
     return this.sortDirection === 'asc' ? '↑' : '↓';
   }
 
+  get filteredTickets(): Ticket[] {
+    let result = this.tickets;
+
+    // Keyword search
+    if (this.searchText) {
+      const s = this.searchText.toLowerCase();
+      result = result.filter((t: any) =>
+        (t.title || '').toLowerCase().includes(s) ||
+        (t.status || '').toLowerCase().includes(s) ||
+        (t.assignedTo || '').toLowerCase().includes(s) ||
+        (t.department || '').toLowerCase().includes(s)
+      );
+    }
+
+    // Department filter
+    if (this.selectedDepartmentId) {
+      result = result.filter((t: any) =>
+        String(t.department_id) === String(this.selectedDepartmentId)
+      );
+    }
+
+    return result;
+  }
+
   get sortedTickets(): Ticket[] {
     return [...this.filteredTickets].sort((a: any, b: any) => {
       let valA = a[this.sortColumn] ?? '';
@@ -86,44 +140,48 @@ export class TicketListComponent implements OnInit {
     });
   }
 
-  // ===== NOTIFICATION =====
+ get paginatedTickets(): Ticket[] {
+  return this.sortedTickets;
+}
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+ changePage(page: number) {
+  if (page >= 1 && page <= this.totalPages) {
+    this.currentPage = page;
+    this.loadTickets();
+  }
+}
+
   showNotif(type: 'success' | 'error' | 'warning', message: string) {
+
     this.notifType = type;
     this.notifMessage = message;
     this.showNotification = true;
     setTimeout(() => { this.showNotification = false; }, 3000);
   }
 
-  // ===== DELETE =====
   deleteTicket(ticket: Ticket) {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete ticket "${ticket.title}"?`
-    );
-    if (!confirmDelete) return;
+    if (!window.confirm(`Delete ticket "${ticket.title}"?`)) return;
     this.ticketService.deleteTicket(String(ticket.id)).subscribe({
       next: () => {
         this.tickets = this.tickets.filter(t => t.id !== ticket.id);
-        if (this.currentPage > this.totalPages) {
-          this.currentPage = this.totalPages;
-        }
+        if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
         this.showNotif('success', 'Ticket deleted successfully!');
       },
-      error: () => {
-        this.showNotif('error', 'Failed to delete ticket');
-      }
+      error: () => { this.showNotif('error', 'Failed to delete ticket'); }
     });
   }
 
-  // ===== ASSIGN =====
   openAssignDialog(ticket: Ticket) {
     this.selectedTicketId = String(ticket.id);
     this.selectedTicketAssignedToId = ticket.assignedToId || '';
     this.showAssignDialog = true;
   }
 
-  closeAssignDialog() {
-    this.showAssignDialog = false;
-  }
+  closeAssignDialog() { this.showAssignDialog = false; }
 
   onAssignResult(result: { success: boolean; message: string }) {
     this.showAssignDialog = false;
@@ -131,7 +189,6 @@ export class TicketListComponent implements OnInit {
     if (result.success) { this.loadTickets(); }
   }
 
-  // ===== STATUS CHANGE =====
   onStatusChange(ticket: Ticket, newStatus: string) {
     const oldStatus = ticket.status;
     ticket.status = newStatus;
@@ -147,35 +204,5 @@ export class TicketListComponent implements OnInit {
   getBadgeClass(status: string): string {
     const normalized = (status || '').toLowerCase().replace(' ', '_');
     return 'badge-' + normalized;
-  }
-
-  // ===== SEARCH =====
-  get filteredTickets(): Ticket[] {
-    if (!this.searchText) return this.tickets;
-    return this.tickets.filter(t =>
-      t.title.toLowerCase().includes(this.searchText.toLowerCase()) ||
-      (t.status || '').toLowerCase().includes(this.searchText.toLowerCase()) ||
-      (t.assignedTo || '').toLowerCase().includes(this.searchText.toLowerCase())
-    );
-  }
-
-  // ===== PAGINATION =====
-  get paginatedTickets(): Ticket[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.sortedTickets.slice(start, start + this.itemsPerPage);
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.filteredTickets.length / this.itemsPerPage);
-  }
-
-  get pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  changePage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-    }
   }
 }

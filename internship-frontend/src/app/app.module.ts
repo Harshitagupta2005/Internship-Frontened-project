@@ -28,6 +28,7 @@ import { AssignTicketComponent } from './assign-ticket/assign-ticket.component';
 import { DepartmentListComponent } from './department-list/department-list.component';
 import { AddDepartmentComponent } from './add-department/add-department.component';
 import { AccessDeniedComponent } from './access-denied/access-denied.component';
+import { TicketsByDepartmentComponent } from './tickets-by-department/tickets-by-department.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -84,6 +85,9 @@ const routes: Routes = [
   { path: 'departments/add', component: AddDepartmentComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['admin'] } },
+    { path: 'tickets-by-department', component: TicketsByDepartmentComponent,
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['admin', 'manager'] } },
 
   { path: '**', redirectTo: '' }
 ];
@@ -96,7 +100,7 @@ const routes: Routes = [
     AddTicketComponent, EditTicketComponent, TicketDetailsComponent,
     NotificationComponent, LoginComponent, UserManagementComponent,
     AddUserComponent, AssignTicketComponent, DepartmentListComponent,
-    AddDepartmentComponent, AccessDeniedComponent
+    AddDepartmentComponent, AccessDeniedComponent ,TicketsByDepartmentComponent
   ],
   imports: [
     BrowserModule,
