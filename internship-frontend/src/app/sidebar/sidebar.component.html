@@ -19,6 +19,11 @@
          routerLinkActive="active" class="sidebar-link" (click)="isOpen=false">
         <span class="icon">🏢</span> Tickets By Department
       </a>
+      <!-- Admin + Manager only -->
+<a *ngIf="isAdminOrManager()" routerLink="/reports"
+   routerLinkActive="active" class="sidebar-link" (click)="isOpen=false">
+  <span class="icon">📋</span> Reports
+</a>
 
       <a routerLink="/profile" routerLinkActive="active"
          class="sidebar-link" (click)="isOpen=false">

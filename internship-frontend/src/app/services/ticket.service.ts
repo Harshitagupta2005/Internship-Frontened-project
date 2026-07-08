@@ -13,34 +13,42 @@ export class TicketService {
   constructor(private http: HttpClient) {}
 
   // GET ALL TICKETS WITH PAGINATION
-  getTickets(page: number = 1): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/tickets?page=${page}&per_page=10`
-    ).pipe(
-      map((res: any) => {
-        return {
-          ...res,
-          data: (res.data || []).map((t: any) => ({
-            id: t.id,
-            title: t.title,
-            description: t.description,
-            status: t.status,
-            priority: t.priority,
-            department: t.department?.name || '',
-          department_id: t.department?.id || '',
-            assignedTo:
-              t.assigned_to?.name
-              || t.assignedTo?.name
-              || t.assigned_to_name
-              || 'Unassigned',
-            assignedToId: t.assigned_to?.id || '',
-            createdDate: t.created_at ? t.created_at.substring(0, 10) : ''
-          }))
-        };
-      }),
-      catchError(() => throwError(() => new Error('API unavailable')))
-    );
+  // GET ALL TICKETS WITH PAGINATION + DEPARTMENT FILTER
+getTickets(page: number = 1, departmentId: string = ''): Observable<any> {
+
+  let url = `${this.apiUrl}/tickets?page=${page}&per_page=10`;
+
+  if (departmentId) {
+    url += `&department_id=${departmentId}`;
   }
+
+  return this.http.get<any>(url).pipe(
+    map((res: any) => {
+      return {
+        ...res,
+        data: (res.data || []).map((t: any) => ({
+          id: t.id,
+          title: t.title,
+          description: t.description,
+          status: t.status,
+          priority: t.priority,
+          department: t.department?.name || '',
+          department_id: t.department?.id || '',
+          assignedTo:
+            t.assigned_to?.name ||
+            t.assignedTo?.name ||
+            t.assigned_to_name ||
+            'Unassigned',
+          assignedToId: t.assigned_to?.id || '',
+          createdDate: t.created_at
+            ? t.created_at.substring(0, 10)
+            : ''
+        }))
+      };
+    }),
+    catchError(() => throwError(() => new Error('API unavailable')))
+  );
+}
 
   // GET SINGLE TICKET
   getTicketById(id: string): Observable<any> {

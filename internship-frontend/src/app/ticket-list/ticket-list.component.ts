@@ -50,22 +50,24 @@ export class TicketListComponent implements OnInit {
     this.loadTickets();
     this.loadDepartments();
   }
-
-    loadTickets() {
+loadTickets() {
   this.isLoading = true;
-  this.ticketService.getTickets(this.currentPage).subscribe({
-    next: (res: any) => {
-  this.tickets = res.data || [];
-  this.totalPages = res.meta?.last_page || 1;
-  this.currentPage = res.meta?.current_page || 1;
-  this.totalTickets = res.meta?.total || 0;
-  this.isLoading = false;
-},
-    error: () => {
-      this.errorMessage = 'Failed to load tickets. Please try again.';
-      this.isLoading = false;
-    }
-  });
+
+  this.ticketService
+    .getTickets(this.currentPage, this.selectedDepartmentId)
+    .subscribe({
+      next: (res: any) => {
+        this.tickets = res.data || [];
+        this.totalPages = res.meta?.last_page || 1;
+        this.currentPage = res.meta?.current_page || 1;
+        this.totalTickets = res.meta?.total || 0;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.errorMessage = 'Failed to load tickets.';
+        this.isLoading = false;
+      }
+    });
 }
 
 
@@ -86,8 +88,9 @@ export class TicketListComponent implements OnInit {
   }
 
   onDepartmentFilter() {
-    this.currentPage = 1;
-  }
+  this.currentPage = 1;
+  this.loadTickets();
+}
 
   sortBy(column: string) {
     if (this.sortColumn === column) {

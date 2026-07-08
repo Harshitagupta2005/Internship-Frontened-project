@@ -1,0 +1,159 @@
+<div class="page-layout">
+  <app-sidebar></app-sidebar>
+  <div class="reports-page">
+
+    <div class="page-header">
+      <div>
+        <h1>📋 Reports</h1>
+        <p>Filter and export ticket data</p>
+      </div>
+    </div>
+
+    <app-notification
+      [type]="notifType"
+      [message]="notifMessage"
+      [show]="showNotification">
+    </app-notification>
+
+    <!-- Filters Card -->
+    <div class="filters-card">
+      <h3 class="filters-title">🔍 Filter Options</h3>
+
+      <div class="filters-grid">
+
+        <!-- Department -->
+        <div class="filter-group">
+          <label>Department</label>
+          <select [(ngModel)]="filters.department_id">
+            <option value="">All Departments</option>
+            <option *ngFor="let d of departments" [value]="d.id">{{ d.name }}</option>
+          </select>
+        </div>
+
+        <!-- Status -->
+        <div class="filter-group">
+          <label>Status</label>
+          <select [(ngModel)]="filters.status">
+            <option value="">All Statuses</option>
+            <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <!-- Priority -->
+        <div class="filter-group">
+          <label>Priority</label>
+          <select [(ngModel)]="filters.priority">
+            <option value="">All Priorities</option>
+            <option *ngFor="let p of priorityOptions" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+
+        <!-- From Date -->
+        <div class="filter-group">
+          <label>From Date</label>
+          <input type="date" [(ngModel)]="filters.from_date" />
+        </div>
+
+        <!-- To Date -->
+        <div class="filter-group">
+          <label>To Date</label>
+          <input type="date" [(ngModel)]="filters.to_date" />
+        </div>
+
+      </div>
+
+      <!-- Filter Actions -->
+      <div class="filter-actions">
+        <button class="btn-apply" (click)="applyFilters()" [disabled]="isLoading">
+          {{ isLoading ? '⏳ Loading...' : '🔍 Apply Filters' }}
+        </button>
+        <button class="btn-reset" (click)="resetFilters()">
+          🔄 Reset
+        </button>
+        <button class="btn-export"
+          (click)="exportCSV()"
+          [disabled]="isExporting || reportData.length === 0">
+          {{ isExporting ? '⏳ Exporting...' : '📥 Export CSV' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section" *ngIf="hasSearched">
+
+      <!-- Error -->
+      <div class="error-box" *ngIf="errorMessage">
+        <span>⚠️ {{ errorMessage }}</span>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-box" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Loading report data...</p>
+      </div>
+
+      <!-- Results -->
+      <div *ngIf="!isLoading && !errorMessage">
+
+        <!-- Total count -->
+        <div class="results-header">
+          <span class="total-badge">
+            📊 Total Records: <strong>{{ totalRecords }}</strong>
+          </span>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper" *ngIf="reportData.length > 0">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Department</th>
+                <th>Assigned To</th>
+                <th>Created Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of reportData; let i = index">
+                <td>{{ t.id }}</td>
+                <td class="title-cell">{{ t.title }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusClass(t.status)">
+                    {{ t.status }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getPriorityClass(t.priority)">
+                    {{ t.priority }}
+                  </span>
+                </td>
+                <td>{{ t.department || '—' }}</td>
+                <td>{{ t.assigned_to || 'Unassigned' }}</td>
+                <td>{{ t.created_at }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- No records -->
+        <div class="no-records" *ngIf="reportData.length === 0">
+          <div class="no-records-icon">🔍</div>
+          <h3>No Records Found</h3>
+          <p>No tickets match the selected filters. Try adjusting your criteria.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Initial state -->
+    <div class="initial-state" *ngIf="!hasSearched">
+      <div class="initial-icon">📋</div>
+      <h3>Apply Filters to Generate Report</h3>
+      <p>Select your filter criteria above and click "Apply Filters" to view the report.</p>
+    </div>
+
+  </div>
+</div>
