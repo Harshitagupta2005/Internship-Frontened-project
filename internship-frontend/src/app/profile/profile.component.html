@@ -8,131 +8,272 @@
 
   <div class="page-header">
     <h1>👤 Profile</h1>
-    <p>Your internship details</p>
+    <p>Your account details and settings</p>
   </div>
 
-  <div class="profile-grid">
-    <div class="profile-card">
-      <div class="avatar">{{ profile.name[0] }}</div>
-      <h2>{{ profile.name }}</h2>
-      <span class="role-badge">{{ profile.role }}</span>
-      <p class="bio">{{ profile.bio }}</p>
-      <div class="info-list">
-        <div class="info-item"><span>🎓</span> {{ profile.college }}</div>
-        <div class="info-item"><span>📧</span> {{ profile.email }}</div>
-        <div class="info-item"><span>📍</span> {{ profile.location }}</div>
-      </div>
-    </div>
-
-    <div class="skills-card">
-      <h3>Skills Learned</h3>
-      <div class="skills-grid">
-        <span class="skill-tag" *ngFor="let skill of skills">{{ skill }}</span>
-      </div>
-      <h3 style="margin-top:28px">Internship Progress</h3>
-      <div class="progress-item">
-        <div class="progress-label"><span>Angular Basics</span><span>90%</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
-      </div>
-      <div class="progress-item">
-        <div class="progress-label"><span>Routing</span><span>85%</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
-      </div>
-      <div class="progress-item">
-        <div class="progress-label"><span>Responsive Design</span><span>80%</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
-      </div>
-    </div>
+  <!-- Loading -->
+  <div class="loading-box" *ngIf="isLoadingUser">
+    <div class="spinner"></div>
+    <p>Loading profile...</p>
   </div>
 
-  <!-- ===== NOTIFICATION PREFERENCES ===== -->
-  <div class="notif-prefs-card">
-    <h3>🔔 Notification Preferences</h3>
-    <p class="notif-prefs-subtitle">Choose which events trigger email notifications</p>
+  <div *ngIf="!isLoadingUser">
 
-    <div class="notif-prefs-loading" *ngIf="isLoadingPrefs">
-      Loading preferences...
+    <div class="profile-grid">
+
+      <!-- Profile Card -->
+      <div class="profile-card">
+
+        <!-- Photo Section -->
+        <div class="avatar-section">
+          <div class="avatar-wrapper">
+            <img *ngIf="photoPreview || user?.photo_url"
+                 [src]="photoPreview || user?.photo_url"
+                 class="avatar-img" alt="Profile Photo" />
+            <div *ngIf="!photoPreview && !user?.photo_url"
+                 class="avatar">{{ getInitial() }}</div>
+            <label class="avatar-edit-btn" for="photoInput" title="Change Photo">📷</label>
+            <input type="file" id="photoInput" hidden
+                   accept="image/*"
+                   (change)="onPhotoSelected($event)" />
+          </div>
+
+          <div *ngIf="selectedPhoto" class="photo-upload-actions">
+            <button class="btn-upload-photo" (click)="uploadPhoto()" [disabled]="isUploadingPhoto">
+              {{ isUploadingPhoto ? '⏳ Uploading...' : '⬆️ Upload Photo' }}
+            </button>
+            <button class="btn-cancel-photo" (click)="selectedPhoto=null; photoPreview=null">✕</button>
+          </div>
+        </div>
+
+        <!-- Name + Role -->
+        <h2>{{ user?.name }}</h2>
+        <span class="role-badge">{{ getRoleLabel() }}</span>
+
+        <!-- Info List -->
+        <div class="info-list" style="margin-top:20px;">
+          <div class="info-item"><span>📧</span> {{ user?.email }}</div>
+          <div class="info-item">
+            <span>🏢</span> {{ getDepartmentLabel() }}
+          </div>
+          <div class="info-item" *ngIf="user?.role"><span>🔑</span> {{ getRoleLabel() }}</div>
+        </div>
+
+        <!-- Edit Profile Button -->
+        <button class="btn-edit-profile" (click)="openEditProfile()" *ngIf="!isEditingProfile">
+          ✏️ Edit Profile
+        </button>
+
+        <!-- Edit Profile Form -->
+        <div class="edit-form" *ngIf="isEditingProfile" [formGroup]="editForm">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" formControlName="name" placeholder="Your name" />
+            <div class="err" *ngIf="ef['name'].errors && ef['name'].touched">
+              <span *ngIf="ef['name'].errors['required']">⚠ Name is required</span>
+              <span *ngIf="ef['name'].errors['minlength']">⚠ Min 2 characters</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" formControlName="email" placeholder="Your email" />
+            <div class="err" *ngIf="ef['email'].errors && ef['email'].touched">
+              <span *ngIf="ef['email'].errors['required']">⚠ Email is required</span>
+              <span *ngIf="ef['email'].errors['email']">⚠ Invalid email</span>
+            </div>
+          </div>
+          <div class="edit-form-btns">
+            <button class="btn-save" (click)="saveProfile()" [disabled]="isUpdatingProfile">
+              {{ isUpdatingProfile ? '⏳...' : '💾 Save' }}
+            </button>
+            <button class="btn-cancel" (click)="cancelEditProfile()">✕ Cancel</button>
+          </div>
+        </div>
+
+        <!-- Change Password Toggle -->
+        <button class="btn-change-pass" (click)="toggleChangePassword()">
+          {{ showChangePassword ? '✕ Cancel' : '🔒 Change Password' }}
+        </button>
+
+      </div>
+
+      <!-- Skills Card -->
+      <div class="skills-card">
+        <h3>Skills Learned</h3>
+        <div class="skills-grid">
+          <span class="skill-tag" *ngFor="let skill of skills">{{ skill }}</span>
+        </div>
+        <h3 style="margin-top:28px">Internship Progress</h3>
+        <div class="progress-item">
+          <div class="progress-label"><span>Angular Basics</span><span>90%</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label"><span>Routing</span><span>85%</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label"><span>Responsive Design</span><span>80%</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="notif-prefs-list" *ngIf="!isLoadingPrefs">
+    <!-- Change Password Section -->
+    <div class="change-pass-card" *ngIf="showChangePassword">
+      <h3>🔒 Change Password</h3>
+      <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
 
-      <!-- Ticket Created -->
-      <div class="notif-pref-item">
-        <div class="notif-pref-info">
-          <span class="notif-pref-icon">🆕</span>
-          <div>
-            <span class="notif-pref-label">Ticket Created</span>
-            <span class="notif-pref-desc">Get notified when a new ticket is created</span>
+        <!-- Current Password -->
+        <div class="form-group">
+          <label>Current Password <span class="required">*</span></label>
+          <div class="pass-input-wrapper">
+            <input [type]="showCurrentPassword ? 'text' : 'password'"
+                   formControlName="current_password"
+                   placeholder="Enter current password"
+                   [class.error-input]="submittedPassword && pf['current_password'].errors" />
+            <button type="button" class="toggle-pass"
+                    (click)="showCurrentPassword=!showCurrentPassword">
+              {{ showCurrentPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
+          <div class="err" *ngIf="submittedPassword && pf['current_password'].errors">
+            ⚠ Current password is required
           </div>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox"
-            [checked]="preferences.ticket_created"
-            (change)="onToggle('ticket_created')"
-            [disabled]="isSavingPrefs">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
 
-      <!-- Ticket Assigned -->
-      <div class="notif-pref-item">
-        <div class="notif-pref-info">
-          <span class="notif-pref-icon">👤</span>
-          <div>
-            <span class="notif-pref-label">Ticket Assigned</span>
-            <span class="notif-pref-desc">Get notified when a ticket is assigned to you</span>
+        <!-- New Password -->
+        <div class="form-group">
+          <label>New Password <span class="required">*</span></label>
+          <div class="pass-input-wrapper">
+            <input [type]="showNewPassword ? 'text' : 'password'"
+                   formControlName="password"
+                   placeholder="Min 8 characters"
+                   [class.error-input]="submittedPassword && pf['password'].errors" />
+            <button type="button" class="toggle-pass"
+                    (click)="showNewPassword=!showNewPassword">
+              {{ showNewPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
+
+          <!-- Password Strength -->
+          <div class="pass-strength" *ngIf="pf['password'].value">
+            <div class="strength-bar">
+              <div class="strength-fill"
+                   [style.width]="getPasswordStrength().width"
+                   [style.background]="getPasswordStrength().color">
+              </div>
+            </div>
+            <span class="strength-label" [style.color]="getPasswordStrength().color">
+              {{ getPasswordStrength().label }}
+            </span>
+          </div>
+
+          <div class="err" *ngIf="submittedPassword && pf['password'].errors">
+            <span *ngIf="pf['password'].errors['required']">⚠ New password is required</span>
+            <span *ngIf="pf['password'].errors['minlength']">⚠ Min 8 characters required</span>
           </div>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox"
-            [checked]="preferences.ticket_assigned"
-            (change)="onToggle('ticket_assigned')"
-            [disabled]="isSavingPrefs">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
 
-      <!-- Status Changed -->
-      <div class="notif-pref-item">
-        <div class="notif-pref-info">
-          <span class="notif-pref-icon">🔄</span>
-          <div>
-            <span class="notif-pref-label">Ticket Status Changed</span>
-            <span class="notif-pref-desc">Get notified when a ticket status is updated</span>
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label>Confirm Password <span class="required">*</span></label>
+          <div class="pass-input-wrapper">
+            <input [type]="showConfirmPassword ? 'text' : 'password'"
+                   formControlName="password_confirmation"
+                   placeholder="Re-enter new password"
+                   [class.error-input]="submittedPassword && (pf['password_confirmation'].errors || passwordForm.errors?.['passwordMismatch'])" />
+            <button type="button" class="toggle-pass"
+                    (click)="showConfirmPassword=!showConfirmPassword">
+              {{ showConfirmPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
+          <div class="err" *ngIf="submittedPassword">
+            <span *ngIf="pf['password_confirmation'].errors?.['required']">⚠ Please confirm your password</span>
+            <span *ngIf="passwordForm.errors?.['passwordMismatch'] && !pf['password_confirmation'].errors?.['required']">⚠ Passwords do not match</span>
           </div>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox"
-            [checked]="preferences.status_changed"
-            (change)="onToggle('status_changed')"
-            [disabled]="isSavingPrefs">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
 
-      <!-- Comment Added -->
-      <div class="notif-pref-item">
-        <div class="notif-pref-info">
-          <span class="notif-pref-icon">💬</span>
-          <div>
-            <span class="notif-pref-label">Comment Added</span>
-            <span class="notif-pref-desc">Get notified when a comment is added to your ticket</span>
-          </div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox"
-            [checked]="preferences.comment_added"
-            (change)="onToggle('comment_added')"
-            [disabled]="isSavingPrefs">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
+        <button type="submit" class="btn-submit-pass" [disabled]="isChangingPassword">
+          {{ isChangingPassword ? '⏳ Changing...' : '🔒 Change Password' }}
+        </button>
 
+      </form>
     </div>
 
-    <div class="notif-saving" *ngIf="isSavingPrefs">
-      ⏳ Saving preferences...
+    <!-- Notification Preferences -->
+    <div class="notif-prefs-card">
+      <h3>🔔 Notification Preferences</h3>
+      <p class="notif-prefs-subtitle">Choose which events trigger email notifications</p>
+
+      <div class="notif-prefs-loading" *ngIf="isLoadingPrefs">Loading preferences...</div>
+
+      <div class="notif-prefs-list" *ngIf="!isLoadingPrefs">
+
+        <div class="notif-pref-item">
+          <div class="notif-pref-info">
+            <span class="notif-pref-icon">🆕</span>
+            <div>
+              <span class="notif-pref-label">Ticket Created</span>
+              <span class="notif-pref-desc">Get notified when a new ticket is created</span>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [checked]="preferences.ticket_created"
+                   (change)="onToggle('ticket_created')" [disabled]="isSavingPrefs">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="notif-pref-item">
+          <div class="notif-pref-info">
+            <span class="notif-pref-icon">👤</span>
+            <div>
+              <span class="notif-pref-label">Ticket Assigned</span>
+              <span class="notif-pref-desc">Get notified when a ticket is assigned to you</span>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [checked]="preferences.ticket_assigned"
+                   (change)="onToggle('ticket_assigned')" [disabled]="isSavingPrefs">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="notif-pref-item">
+          <div class="notif-pref-info">
+            <span class="notif-pref-icon">🔄</span>
+            <div>
+              <span class="notif-pref-label">Ticket Status Changed</span>
+              <span class="notif-pref-desc">Get notified when a ticket status is updated</span>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [checked]="preferences.status_changed"
+                   (change)="onToggle('status_changed')" [disabled]="isSavingPrefs">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="notif-pref-item">
+          <div class="notif-pref-info">
+            <span class="notif-pref-icon">💬</span>
+            <div>
+              <span class="notif-pref-label">Comment Added</span>
+              <span class="notif-pref-desc">Get notified when a comment is added to your ticket</span>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [checked]="preferences.comment_added"
+                   (change)="onToggle('comment_added')" [disabled]="isSavingPrefs">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+      </div>
+      <div class="notif-saving" *ngIf="isSavingPrefs">⏳ Saving preferences...</div>
     </div>
+
   </div>
-
 </div>
