@@ -217,11 +217,12 @@ export class ProfileComponent implements OnInit {
     if (this.passwordForm.invalid) return;
     this.isChangingPassword = true;
 
-    this.http.put(`${this.apiUrl}/profile/change-password`, {
-      current_password: this.passwordForm.value.current_password,
-      password: this.passwordForm.value.password,
-      password_confirmation: this.passwordForm.value.password_confirmation
-    }).subscribe({
+    this.http.put(`${this.apiUrl}/profile/password`, {
+  current_password: this.passwordForm.value.current_password,
+  new_password: this.passwordForm.value.password,
+  new_password_confirmation: this.passwordForm.value.password_confirmation
+})
+    .subscribe({
       next: () => {
         this.isChangingPassword = false;
         this.submittedPassword = false;
