@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-reports',
@@ -24,7 +26,8 @@ export class ReportsComponent implements OnInit {
 
   // States
   isLoading = false;
-  isExporting = false;
+  isExporting = false;       // used for CSV
+  isGeneratingReport = false; // used for PDF / Print
   hasSearched = false;
   errorMessage = '';
 
@@ -35,6 +38,8 @@ export class ReportsComponent implements OnInit {
 
   statusOptions = ['open', 'in_progress', 'closed'];
   priorityOptions = ['high', 'medium', 'low'];
+
+  reportTitle = 'AeoLogic Technologies — Employee Helpdesk & Ticket Management System';
 
   private apiUrl = 'http://127.0.0.1:8000/api';
 
@@ -94,7 +99,6 @@ export class ReportsComponent implements OnInit {
   }
 
   exportCSV() {
-    // Option 1: Backend CSV export (agar /api/reports/export available hai)
     this.isExporting = true;
     const params = this.buildParams();
 
@@ -112,7 +116,6 @@ export class ReportsComponent implements OnInit {
         this.showNotif('success', 'Report exported successfully!');
       },
       error: () => {
-        // Fallback: Frontend CSV export
         this.exportCSVFrontend();
       }
     });
@@ -149,6 +152,78 @@ export class ReportsComponent implements OnInit {
     this.showNotif('success', 'Report exported successfully!');
   }
 
+  /** ---------------- PDF EXPORT ---------------- */
+  exportPDF() {
+    if (this.reportData.length === 0) {
+      this.showNotif('warning', 'No data to export. Please apply filters first.');
+      return;
+    }
+
+    this.isGeneratingReport = true;
+
+    // give Angular a tick to render the print-section with latest data
+    setTimeout(() => {
+      const element = document.getElementById('printSection');
+      if (!element) {
+        this.isGeneratingReport = false;
+        this.showNotif('error', 'Could not generate PDF. Please try again.');
+        return;
+      }
+
+      html2canvas(element, { scale: 2, useCORS: true }).then(canvas => {
+        try {
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+
+          const imgWidth = pageWidth;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+          let heightLeft = imgHeight;
+          let position = 0;
+
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+
+          while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+          }
+
+          pdf.save(`tickets_report_${new Date().toISOString().slice(0,10)}.pdf`);
+          this.isGeneratingReport = false;
+          this.showNotif('success', 'PDF report generated successfully!');
+        } catch (err) {
+          console.error('PDF generation error:', err);
+          this.isGeneratingReport = false;
+          this.showNotif('error', 'Failed to generate PDF. Please try again.');
+        }
+      }).catch(err => {
+        console.error('html2canvas error:', err);
+        this.isGeneratingReport = false;
+        this.showNotif('error', 'Failed to generate PDF. Please try again.');
+      });
+    }, 100);
+  }
+
+  /** ---------------- PRINT ---------------- */
+  printReport() {
+    if (this.reportData.length === 0) {
+      this.showNotif('warning', 'No data to print. Please apply filters first.');
+      return;
+    }
+
+    this.isGeneratingReport = true;
+
+    setTimeout(() => {
+      this.isGeneratingReport = false;
+      window.print();
+    }, 100);
+  }
+
   buildParams(): string {
     const p: string[] = [];
     if (this.filters.department_id) p.push(`department_id=${this.filters.department_id}`);
@@ -158,6 +233,30 @@ export class ReportsComponent implements OnInit {
     if (this.filters.to_date)       p.push(`to_date=${this.filters.to_date}`);
     p.push('per_page=100');
     return p.join('&');
+  }
+
+  getDepartmentName(): string {
+    const dept = this.departments.find(d => String(d.id) === String(this.filters.department_id));
+    return dept ? dept.name : '';
+  }
+
+  /** Human-readable summary of applied filters, for report header */
+  getAppliedFiltersSummary(): string[] {
+    const summary: string[] = [];
+    if (this.filters.department_id) summary.push(`Department: ${this.getDepartmentName()}`);
+    if (this.filters.status)        summary.push(`Status: ${this.filters.status}`);
+    if (this.filters.priority)      summary.push(`Priority: ${this.filters.priority}`);
+    if (this.filters.from_date)     summary.push(`From: ${this.filters.from_date}`);
+    if (this.filters.to_date)       summary.push(`To: ${this.filters.to_date}`);
+    return summary.length ? summary : ['No filters applied (showing all records)'];
+  }
+
+  getGeneratedTimestamp(): string {
+    const now = new Date();
+    return now.toLocaleString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
   }
 
   getStatusClass(status: string): string {

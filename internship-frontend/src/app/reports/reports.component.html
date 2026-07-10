@@ -15,6 +15,12 @@
       [show]="showNotification">
     </app-notification>
 
+    <!-- Generating overlay (PDF / Print) -->
+    <div class="generating-overlay" *ngIf="isGeneratingReport">
+      <div class="spinner"></div>
+      <p>Generating report...</p>
+    </div>
+
     <!-- Filters Card -->
     <div class="filters-card">
       <h3 class="filters-title">🔍 Filter Options</h3>
@@ -72,8 +78,18 @@
         </button>
         <button class="btn-export"
           (click)="exportCSV()"
-          [disabled]="isExporting || reportData.length === 0">
+          [disabled]="isExporting || isGeneratingReport || reportData.length === 0">
           {{ isExporting ? '⏳ Exporting...' : '📥 Export CSV' }}
+        </button>
+        <button class="btn-export-pdf"
+          (click)="exportPDF()"
+          [disabled]="isGeneratingReport || isExporting || reportData.length === 0">
+          {{ isGeneratingReport ? '⏳ Generating...' : '📄 Export PDF' }}
+        </button>
+        <button class="btn-print"
+          (click)="printReport()"
+          [disabled]="isGeneratingReport || isExporting || reportData.length === 0">
+          🖨️ Print Report
         </button>
       </div>
     </div>
@@ -155,5 +171,57 @@
       <p>Select your filter criteria above and click "Apply Filters" to view the report.</p>
     </div>
 
+  </div>
+</div>
+
+<!-- ============================================================
+     PRINT / PDF SECTION (hidden on screen, used for print + PDF)
+     Kept in DOM always so html2canvas + window.print can access it.
+     ============================================================ -->
+<div id="printSection" class="print-section">
+  <div class="print-header">
+    <h1>{{ reportTitle }}</h1>
+    <h2>Ticket Report</h2>
+    <p class="print-meta">Generated on: {{ getGeneratedTimestamp() }}</p>
+  </div>
+
+  <div class="print-filters">
+    <strong>Applied Filters:</strong>
+    <ul>
+      <li *ngFor="let f of getAppliedFiltersSummary()">{{ f }}</li>
+    </ul>
+  </div>
+
+  <div class="print-total">
+    <strong>Total Records:</strong> {{ totalRecords }}
+  </div>
+
+  <table class="print-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Priority</th>
+        <th>Department</th>
+        <th>Assigned To</th>
+        <th>Created Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let t of reportData">
+        <td>{{ t.id }}</td>
+        <td>{{ t.title }}</td>
+        <td>{{ t.status }}</td>
+        <td>{{ t.priority }}</td>
+        <td>{{ t.department || '—' }}</td>
+        <td>{{ t.assigned_to || 'Unassigned' }}</td>
+        <td>{{ t.created_at }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="print-footer">
+    <p>Employee Helpdesk / Ticket Management System — Confidential Report</p>
   </div>
 </div>
