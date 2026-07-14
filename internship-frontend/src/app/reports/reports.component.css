@@ -300,7 +300,13 @@
    Hidden on screen always; only shown when printing.
    ============================================================ */
 .print-section {
-  display: none;
+  position: fixed;
+  top: 0;
+  left: -9999px;
+  width: 800px;
+  background: white;
+  padding: 20px;
+  z-index: -1;
 }
 
 .print-header {
@@ -381,9 +387,11 @@
   }
 
   .print-section {
-    display: block !important;
-    width: 100%;
+    position: static !important;
+    left: auto !important;
+    width: 100% !important;
     padding: 20px;
+    z-index: auto !important;
   }
 
   @page {
