@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
 
-  private apiUrl = 'https://internship-backened-production.up.railway.app/api';
+  private apiUrl = 'https://internship-backend-production.up.railway.app/api';
   private tokenKey = 'auth_token';
   private userKey = 'auth_user';
 

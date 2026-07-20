@@ -1,0 +1,5 @@
+[33mcommit 6b56dcecae410394c519733d23e5e154b7fbdaab[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Harshitagupta2005 <hg4579655@gmail.com>
+Date:   Sun Jul 19 19:56:15 2026 +0530
+
+    fix: increase CSS budget limit for production build

@@ -111,7 +111,7 @@ php artisan db:seed
 ```bash
 cd Internship-Backend
 php artisan serve
-# Runs on http://localhost:8000
+# Runs on https://internship-backend-production.up.railway.app
 ```
 
 ### Start Frontend
@@ -122,7 +122,7 @@ ng serve
 ```
 
 - **Frontend:** http://localhost:4200
-- **Backend API:** http://localhost:8000/api
+- **Backend API:** https://internship-backend-production.up.railway.app/api
 
 ---
 
