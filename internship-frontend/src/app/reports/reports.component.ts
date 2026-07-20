@@ -41,7 +41,7 @@ export class ReportsComponent implements OnInit {
 
   reportTitle = 'AeoLogic Technologies — Employee Helpdesk & Ticket Management System';
 
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private apiUrl = 'https://internship-backend-production.up.railway.app/api';
 
   constructor(private http: HttpClient) {}
 

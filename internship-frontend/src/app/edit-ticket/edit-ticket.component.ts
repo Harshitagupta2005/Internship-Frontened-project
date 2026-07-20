@@ -29,7 +29,7 @@ export class EditTicketComponent implements OnInit {
   isLoadingUsers = true;
   isLoadingDepts = true;
 
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private apiUrl = 'https://internship-backend-production.up.railway.app/api';
 
   constructor(
     private fb: FormBuilder,

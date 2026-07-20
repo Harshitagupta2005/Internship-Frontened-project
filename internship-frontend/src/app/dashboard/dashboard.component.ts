@@ -35,7 +35,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   recentItemsPerPage = 5;
 
   private stats: any = null;
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private apiUrl = 'https://internship-backend-production.up.railway.app/api';
 
   private readonly colors = [
     '#1D9E75', '#3498db', '#e67e22', '#9b59b6',
