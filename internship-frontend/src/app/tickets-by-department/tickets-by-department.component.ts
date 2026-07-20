@@ -18,7 +18,7 @@ export class TicketsByDepartmentComponent implements OnInit, OnDestroy {
   deptLabels: string[] = [];
   isLoading = true;
 
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private apiUrl = 'https://internship-frontened-project.vercel.app/api';
 
   private readonly colors = [
     '#1D9E75', '#3498db', '#e67e22', '#9b59b6',
