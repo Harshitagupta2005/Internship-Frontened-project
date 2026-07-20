@@ -50,7 +50,7 @@ export class ProfileComponent implements OnInit {
   notifType: 'success' | 'error' | 'warning' = 'success';
   notifMessage = '';
 
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = 'https://internship-backend-production.up.railway.app/api';
 
   constructor(
     private http: HttpClient,

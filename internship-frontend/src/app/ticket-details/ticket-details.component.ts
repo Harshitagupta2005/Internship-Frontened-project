@@ -46,7 +46,7 @@ export class TicketDetailsComponent implements OnInit {
   activities: Activity[] = [];
   isLoadingActivities = false;
 
-  private attachmentBaseUrl = 'http://localhost:8000/api';
+  private attachmentBaseUrl = 'https://internship-backend-production.up.railway.app/api';
 
   constructor(
     private route: ActivatedRoute,

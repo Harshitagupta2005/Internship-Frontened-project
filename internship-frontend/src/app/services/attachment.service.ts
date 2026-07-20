@@ -6,7 +6,7 @@ import { Attachment } from '../models/attachment.model';
 @Injectable({ providedIn: 'root' })
 export class AttachmentService {
   // TODO: apna actual base API URL daalo (environment.apiUrl se le sakte ho)
-  private baseUrl = 'http://localhost:8000/api/tickets';
+  private baseUrl = '/api/tickets';
 
   constructor(private http: HttpClient) {}
 

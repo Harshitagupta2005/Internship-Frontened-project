@@ -9,7 +9,7 @@ import { Department } from '../models/department';
 })
 export class DepartmentService {
 
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private apiUrl = 'https://internship-backend-production.up.railway.app/api';
 
   constructor(private http: HttpClient) {}
 
