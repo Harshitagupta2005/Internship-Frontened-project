@@ -18,6 +18,14 @@ Built during a Web Developer Internship at **Aeologic Technology Pvt. Ltd.**
 
 ---
 
+## 🌐 Live Demo
+
+🔗 **Live URL:** [https://internship-frontened-project.vercel.app](https://internship-frontened-project.vercel.app)
+
+> Note: This is the frontend deployment only. Backend features (login, tickets, reports) require the Laravel API running separately — see Installation Steps below to run the full stack locally.
+
+---
+
 ## 📖 Project Overview
 
 The Employee Helpdesk Ticket Management System streamlines internal IT support operations by replacing manual, informal issue reporting with a centralized platform. Employees raise tickets, managers assign and track resolution, and administrators oversee the full system — including user management, department management, email notifications, and exportable analytics/reports.
