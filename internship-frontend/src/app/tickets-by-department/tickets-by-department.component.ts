@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Chart, registerables } from 'chart.js';
 
@@ -9,7 +9,7 @@ Chart.register(...registerables);
   templateUrl: './tickets-by-department.component.html',
   styleUrls: ['./tickets-by-department.component.css']
 })
-export class TicketsByDepartmentComponent implements OnInit, OnDestroy {
+export class TicketsByDepartmentComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('barCanvas') barCanvas!: ElementRef;
   private barChart: Chart | null = null;
@@ -17,8 +17,10 @@ export class TicketsByDepartmentComponent implements OnInit, OnDestroy {
   departments: any[] = [];
   deptLabels: string[] = [];
   isLoading = true;
+  private dataLoaded = false;
+  private viewReady = false;
 
-  private apiUrl = 'https://internship-frontened-project.vercel.app/api';
+  private apiUrl = 'YOUR_API_URL/api'; // apna URL daalo
 
   private readonly colors = [
     '#1D9E75', '#3498db', '#e67e22', '#9b59b6',
@@ -30,6 +32,14 @@ export class TicketsByDepartmentComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadDepartments();
+  }
+
+  ngAfterViewInit() {
+    this.viewReady = true;
+    // Agar data pehle aa gaya ho
+    if (this.dataLoaded) {
+      setTimeout(() => this.renderChart(), 200);
+    }
   }
 
   ngOnDestroy() {
@@ -53,18 +63,23 @@ export class TicketsByDepartmentComponent implements OnInit, OnDestroy {
         });
         this.deptLabels = this.departments.map((d: any) => d.name || 'Unknown');
         this.isLoading = false;
-        setTimeout(() => this.renderChart(), 100);
+        this.dataLoaded = true;
+
+        // View ready hai to render karo
+        if (this.viewReady) {
+          setTimeout(() => this.renderChart(), 200);
+        }
       },
       error: () => { this.isLoading = false; }
     });
   }
 
   renderChart() {
-    if (!this.barCanvas) return;
+    if (!this.barCanvas || !this.barCanvas.nativeElement) return;
     if (this.barChart) this.barChart.destroy();
 
     const labels = this.departments.map((d: any) => d.name || 'Unknown');
-    const data   = this.departments.map((d: any) => d.tickets_count || 0);
+    const data = this.departments.map((d: any) => d.tickets_count || 0);
     const bgColors = labels.map((_: any, i: number) => this.colors[i % this.colors.length]);
 
     this.barChart = new Chart(this.barCanvas.nativeElement, {
