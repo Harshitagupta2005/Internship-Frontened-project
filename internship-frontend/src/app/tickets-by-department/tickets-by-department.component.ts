@@ -20,7 +20,7 @@ export class TicketsByDepartmentComponent implements OnInit, AfterViewInit, OnDe
   private dataLoaded = false;
   private viewReady = false;
 
-  private apiUrl = 'https://internship-backend-production.up.railway.app/api';git add .
+  private apiUrl = 'https://internship-backend-production.up.railway.app/api';
 
   private readonly colors = [
     '#1D9E75', '#3498db', '#e67e22', '#9b59b6',
