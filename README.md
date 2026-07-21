@@ -88,14 +88,14 @@ php artisan key:generate
 Configure your `.env` file with the following:
 ```env
 DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
+DB_HOST=https://internship-backend-production.up.railway.app
 DB_PORT=5432
 DB_DATABASE=employee_helpdesk
 DB_USERNAME=postgres
 DB_PASSWORD=your_password
 
 MAIL_MAILER=smtp
-MAIL_HOST=127.0.0.1
+MAIL_HOST=https://internship-backend-production.up.railway.app
 MAIL_PORT=1025
 MAIL_USERNAME=null
 MAIL_PASSWORD=null
@@ -103,7 +103,7 @@ MAIL_ENCRYPTION=null
 MAIL_FROM_ADDRESS="helpdesk@example.com"
 MAIL_FROM_NAME="Helpdesk System"
 ```
-> 💡 For local email testing, tools like **Mailhog** or **Mailtrap** can be run on `127.0.0.1:1025` to catch outgoing notification emails without sending real mail.
+> 💡 For local email testing, tools like **Mailhog** or **Mailtrap** can be run on `https://internship-backend-production.up.railway.app` to catch outgoing notification emails without sending real mail.
 
 ```bash
 # Database setup
